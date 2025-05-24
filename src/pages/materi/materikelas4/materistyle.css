@@ -1,0 +1,336 @@
+.header-materiaddition {
+    background: linear-gradient(135deg, #4285f4 0%, #6C3CE9 100%);
+    padding: 1.25rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.header-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-icon {
+    color: white;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.header-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.materi-container {
+    padding: 100px 5% 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #F8F9FA;
+    overflow-y: visible;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.materi-header {
+    margin-bottom: 2rem;
+}
+
+.back-buttonM {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #6C3CE9;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(108, 60, 233, 0.1);
+    transition: all 0.3s ease;
+}
+
+.back-buttonM:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 4px 8px rgba(108, 60, 233, 0.2);
+}
+
+.content-wrapper {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    overflow: visible;
+}
+
+.video-container {
+    width: 100%;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.video-container iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+    display: block;
+}
+
+.materi-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+}
+
+.materi-description {
+    color: #4B5563;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.watch-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #F8F9FA;
+    border-radius: 12px;
+}
+
+.watch-time {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #4B5563;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.latihan-button {
+    background: linear-gradient(135deg, #4285f4 0%, #6C3CE9 100%);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.latihan-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 60, 233, 0.3);
+}
+
+.ringkasan-section {
+    margin-top: 2.5rem;
+    border-top: 2px solid #E5E7EB;
+    padding-top: 2.5rem;
+}
+
+.ringkasan-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin-bottom: 1.5rem;
+}
+
+.konsep-pengurangan {
+    background: #F8F9FA;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #E5E7EB;
+}
+
+.konsep-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1A1A1A;
+    margin-bottom: 1rem;
+}
+
+.konsep-content {
+    color: #4B5563;
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.example {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+}
+
+.footer {
+    background: #1A1A1A;
+    color: white;
+    padding: 3rem 2rem 2rem;
+    position: relative;
+    width: 100%;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.footer-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.footer-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.footer-subtitle {
+    color: #A3A3A3;
+    font-size: 1rem;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.social-icon {
+    color: white;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.social-icon:hover {
+    opacity: 1;
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.copyright {
+    color: #666;
+    font-size: 0.875rem;
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-materiaddition {
+        padding: 1rem;
+    }
+
+    .materi-container {
+        padding: 80px 1rem 100px;
+        min-height: auto;
+    }
+
+    .content-wrapper {
+        padding: 1.5rem;
+    }
+
+    .watch-info {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-social {
+        justify-content: center;
+    }
+
+    body, html {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Webkit scrollbar styling */
+/* ::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F8F9FA;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6C3CE9;
+    border-radius: 6px;
+    border: 3px solid #F8F9FA;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4285f4;
+} */

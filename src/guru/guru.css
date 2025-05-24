@@ -1,0 +1,588 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: auto;
+  overflow-y: scroll;
+  background: white;
+}
+
+/* TabGuru Dashboard Styles */
+.tabguru-dashboard {
+  font-family: "Arial", sans-serif;
+  background: white;
+  margin: 0;
+}
+
+/* Header styles */
+.tabguru-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+  color: white;
+  padding: 1rem;
+  border-radius: 0 0 10px 10px;
+  margin-bottom: 20px;
+}
+
+.tabguru-logo {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  gap: 10px;
+}
+
+.tabguru-logo i {
+  font-size: 1.8rem;
+}
+
+.tabguru-logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.tabguru-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tabguru-user-mode-button,
+.tabguru-home-button,
+.tabguru-logout-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.tabguru-user-mode-button:hover,
+.tabguru-home-button:hover,
+.tabguru-logout-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Profile Container Styles */
+.tabguru-profile-container {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tabguru-profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 20px;
+  border: 4px solid #f3f4f6;
+}
+
+.tabguru-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tabguru-profile-info {
+  flex: 1;
+}
+
+.tabguru-profile-info h2 {
+  margin: 0 0 5px;
+  text-transform: capitalize;
+  color: #111827;
+  font-size: 1.5rem;
+}
+
+.tabguru-profile-info p {
+  margin: 0 0 10px;
+  color: #4b5563;
+}
+
+.tabguru-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 0.9rem;
+}
+
+.tabguru-email-link,
+.tabguru-phone-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #6366f1;
+  gap: 8px;
+}
+
+.tabguru-email-link:hover,
+.tabguru-phone-link:hover {
+  text-decoration: underline;
+}
+
+.tabguru-student-count {
+  display: flex;
+  align-items: center;
+  color: #10b981;
+  gap: 8px;
+}
+
+.tabguru-edit-profile-button {
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.tabguru-edit-profile-button:hover {
+  background: #4f46e5;
+}
+
+/* Tab Navigation Styles */
+.tabguru-tabs-nav {
+  display: flex;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.tabguru-tab-button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  border-bottom: 2px solid transparent;
+}
+
+.tabguru-tab-button.tabguru-active {
+  color: #6366f1;
+  border-bottom: 2px solid #6366f1;
+}
+
+.tabguru-tab-button:hover:not(.tabguru-active) {
+  background: #f9fafb;
+}
+
+.tabguru-tab-icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Tab Content Styles */
+.tabguru-tab-content {
+  background: white;
+  border-radius: 10px;
+  padding: 55px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Student List Styles */
+.tabguru-search-filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.tabguru-search-bar {
+  flex: 1;
+}
+
+.tabguru-search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.tabguru-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+.tabguru-search-input {
+  padding: 10px 15px 10px 35px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.tabguru-search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.tabguru-filter-dropdown {
+  display: flex;
+  gap: 10px;
+}
+
+.tabguru-filter-select {
+  padding: 10px 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+.tabguru-filter-button {
+  padding: 10px 15px;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+}
+
+.tabguru-filter-button:hover {
+  background: #4f46e5;
+}
+
+/* Students Container Styles */
+.tabguru-students-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.tabguru-student-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tabguru-student-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tabguru-student-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.tabguru-student-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tabguru-student-info {
+  flex: 1;
+  margin-bottom: 10px;
+}
+
+.tabguru-student-info h3 {
+  margin: 0 0 5px;
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.tabguru-student-info p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.tabguru-parent-info {
+  margin-top: 4px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.tabguru-parent-label {
+  font-weight: 500;
+  color: #444;
+}
+
+.tabguru-parent-info .tabguru-linked {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.tabguru-parent-info .tabguru-unlinked {
+  color: #f57c00;
+  font-style: italic;
+}
+
+.tabguru-unlinked {
+  color: #ef4444;
+}
+
+.tabguru-student-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.tabguru-action-button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.tabguru-action-button.tabguru-tugas {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.tabguru-action-button.tabguru-catatan {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.tabguru-action-button.tabguru-lihat-catatan {
+  background-color: #e0f2fe;
+  color: #0277bd;
+}
+
+.tabguru-action-button.tabguru-hapus {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.tabguru-action-button.tabguru-edit {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+}
+
+/* Pagination Styles */
+.tabguru-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.tabguru-pagination-prev,
+.tabguru-pagination-next {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.tabguru-pagination-number {
+  margin: 0 5px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  background: none;
+}
+
+.tabguru-pagination-number.tabguru-pagination-active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white;
+}
+
+/* Loading and Empty States */
+.tabguru-loading {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+}
+
+.tabguru-no-students {
+  text-align: center;
+  padding: 30px 0;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.tabguru-loading-profile {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+}
+
+.tabguru-loading i,
+.tabguru-loading-profile i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  color: #6366f1;
+}
+
+/* Reports Styles */
+.tabguru-reports {
+  padding: 20px;
+}
+
+.tabguru-report-filters {
+  margin-bottom: 20px;
+}
+
+.tabguru-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.tabguru-filter-group label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.tabguru-filter-group select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.tabguru-report-content {
+  margin-top: 20px;
+}
+
+.tabguru-class-summary {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.tabguru-summary-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.tabguru-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tabguru-stat-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.tabguru-stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.tabguru-student-reports {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabguru-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.tabguru-report-table th,
+.tabguru-report-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tabguru-report-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.tabguru-report-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tabguru-profile-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabguru-profile-avatar {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .tabguru-edit-profile-button {
+    margin-top: 15px;
+  }
+
+  .tabguru-tabs-nav {
+    overflow-x: auto;
+  }
+
+  .tabguru-search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabguru-students-container {
+    grid-template-columns: 1fr;
+  }
+
+  .tabguru-student-actions {
+    flex-direction: column;
+  }
+
+  .tabguru-action-button {
+    flex: none;
+  }
+}

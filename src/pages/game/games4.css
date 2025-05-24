@@ -1,0 +1,213 @@
+/* Game Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Button Hover Effects */
+button:hover {
+  transition: all 0.3s ease;
+}
+
+/* Confetti Container */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Timer Animation */
+@keyframes timerPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.timer-low {
+  animation: timerPulse 1s infinite;
+  color: #ef4444;
+}
+
+/* Question Container */
+.question-container {
+  transition: all 0.3s ease;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Custom Grid Layout */
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .answer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Custom Button Styles */
+.answer-button {
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.answer-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.answer-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.answer-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Progress Bar */
+.progress-bar {
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #ec4899, #f472b6);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+/* Feedback Animation */
+@keyframes feedbackPop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.feedback-active {
+  animation: feedbackPop 0.3s ease;
+}
+
+/* Score Animation */
+@keyframes scoreCount {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.score-highlight {
+  animation: scoreCount 0.5s ease;
+}
+
+/* Character Movement */
+@keyframes characterJump {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.character-jump {
+  animation: characterJump 1s ease;
+}
+
+/* Game Background */
+.game-bg {
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+/* Card Effects */
+.game-card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Utils */
+.min-h-10 {
+  min-height: 2.5rem;
+}
+
+.min-h-40 {
+  min-height: 10rem;
+}
+
+/* Correct/Wrong Animations */
+@keyframes correctAnswer {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.answer-correct {
+  animation: correctAnswer 0.5s ease;
+  background-color: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+.answer-wrong {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+}
