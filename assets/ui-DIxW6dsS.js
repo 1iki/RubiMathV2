@@ -1,4 +1,4 @@
-import{r as v}from"./vendor.nRkEm3UK.js";var ne={exports:{}},yt={};/**
+import{r as v}from"./vendor-nRkEm3UK.js";var ne={exports:{}},yt={};/**
  * @license React
  * react-jsx-runtime.production.js
  *
