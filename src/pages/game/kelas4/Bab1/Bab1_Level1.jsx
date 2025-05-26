@@ -1,14 +1,81 @@
 import { useState, useEffect } from "react";
 import { Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "../games4.css"; // Import the CSS file
+import supabase from "../../../../config/supabase"; // Import supabase client
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 export default function PetualanganBilanganCacah() {
-  // Game variables
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  
+  // State untuk game
   const [score, setScore] = useState(0);
-  const [currentGame, setCurrentGame] = useState("read"); // Start with reading game
-  const [gameProgress, setGameProgress] = useState(0); // Track overall progress
+  const [currentGame, setCurrentGame] = useState("read");
+  const [gameProgress, setGameProgress] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState({
+    read: 0,
+    write: 0,
+    compare: 0,
+    order: 0
+  });
 
-  // Current question indexes
+  // Game completion states
+  const [readCompleted, setReadCompleted] = useState(false);
+  const [writeCompleted, setWriteCompleted] = useState(false);
+  const [compareCompleted, setCompareCompleted] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
+  const [gameCompleted, setGameCompleted] = useState(false);
+
+  // Load saved progress when component mounts
+  useEffect(() => {
+    const loadProgress = async () => {
+      const savedProgress = await getGameProgress(4, 1, 1);
+      if (savedProgress) {
+        // Restore game state from saved progress
+        setScore(savedProgress.skor || 0);
+        setGameCompleted(savedProgress.status_selesai || false);
+        
+        if (savedProgress.detail_jawaban?.jawaban) {
+          const jawaban = savedProgress.detail_jawaban.jawaban;
+          setCorrectAnswers({
+            read: jawaban.find(j => j.bagian === "read")?.total_benar || 0,
+            write: jawaban.find(j => j.bagian === "write")?.total_benar || 0,
+            compare: jawaban.find(j => j.bagian === "compare")?.total_benar || 0,
+            order: jawaban.find(j => j.bagian === "order")?.total_benar || 0
+          });
+        }
+      }
+    };
+
+    if (!loading && user) {
+      loadProgress();
+    }
+  }, [loading, user]);
+
+  // Redirect jika tidak ada user
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Jika masih loading, tampilkan loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4 flex items-center justify-center">
+        <div className="text-2xl font-bold text-gray-700">Loading...</div>
+      </div>
+    );
+  }
+
+  // Jika tidak ada user, jangan render game
+  if (!user) {
+    return null;
+  }
+
+  // Game variables
   const [currentRead, setCurrentRead] = useState(0);
   const [currentWrite, setCurrentWrite] = useState(0);
   const [currentCompare, setCurrentCompare] = useState(0);
@@ -98,15 +165,6 @@ export default function PetualanganBilanganCacah() {
   // Confetti effect
   const [showConfetti, setShowConfetti] = useState(false);
 
-  // Track completion of each section
-  const [readCompleted, setReadCompleted] = useState(false);
-  const [writeCompleted, setWriteCompleted] = useState(false);
-  const [compareCompleted, setCompareCompleted] = useState(false);
-  const [orderCompleted, setOrderCompleted] = useState(false);
-
-  // Game completed state
-  const [gameCompleted, setGameCompleted] = useState(false);
-
   // Progress to next game type
   const progressToNextGame = () => {
     // Reset all result messages
@@ -160,9 +218,8 @@ export default function PetualanganBilanganCacah() {
     setScore(0);
   };
 
-  // Check read answer
+  // Modifikasi fungsi checkReadAnswer untuk menggunakan state yang benar
   const checkReadAnswer = (selectedIndex) => {
-    // Only allow answering once
     if (readAnswered) return;
 
     const question = numbers.read[currentRead];
@@ -172,18 +229,21 @@ export default function PetualanganBilanganCacah() {
         message: "Benar! 🎉",
         isCorrect: true,
       });
-      setScore((prevScore) => prevScore + 10); // 10 points per question
+      setScore((prevScore) => prevScore + 10);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        read: prev.read + 1
+      }));
       characterJump();
       createConfetti();
+      handleSaveProgress(); // Save progress after correct answer
     } else {
       setReadResult({
-        message: `Salah! Jawaban yang benar: ${question.options[question.answer]
-          }`,
+        message: "Salah! Coba lagi ya!",
         isCorrect: false,
       });
+      handleSaveProgress(); // Save progress after wrong answer too
     }
-
-    // Mark as answered regardless of correctness
     setReadAnswered(true);
   };
 
@@ -209,12 +269,10 @@ export default function PetualanganBilanganCacah() {
     }
   };
 
-  // Check write answer
+  // Modifikasi fungsi checkWriteAnswer
   const checkWriteAnswer = () => {
-    // Only allow answering once
     if (writeAnswered) return;
 
-    // Validate input is not empty
     if (!inputNumber.trim()) {
       setWriteResult({
         message: "Harap masukkan jawaban terlebih dahulu!",
@@ -230,7 +288,11 @@ export default function PetualanganBilanganCacah() {
         message: "Benar! 🎉",
         isCorrect: true,
       });
-      setScore((prevScore) => prevScore + 10); // 10 points per question
+      setScore((prevScore) => prevScore + 10);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        write: prev.write + 1
+      }));
       characterJump();
       createConfetti();
     } else {
@@ -239,8 +301,6 @@ export default function PetualanganBilanganCacah() {
         isCorrect: false,
       });
     }
-
-    // Mark as answered regardless of correctness
     setWriteAnswered(true);
   };
 
@@ -267,9 +327,8 @@ export default function PetualanganBilanganCacah() {
     }
   };
 
-  // Check compare answer
+  // Modifikasi fungsi checkCompareAnswer
   const checkCompareAnswer = (choice) => {
-    // Only allow answering once
     if (compareAnswered) return;
 
     const question = numbers.compare[currentCompare];
@@ -279,7 +338,11 @@ export default function PetualanganBilanganCacah() {
         message: "Benar! 🎉",
         isCorrect: true,
       });
-      setScore((prevScore) => prevScore + 10); // 10 points per question
+      setScore((prevScore) => prevScore + 10);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        compare: prev.compare + 1
+      }));
       characterJump();
       createConfetti();
     } else {
@@ -297,8 +360,6 @@ export default function PetualanganBilanganCacah() {
         isCorrect: false,
       });
     }
-
-    // Mark as answered regardless of correctness
     setCompareAnswered(true);
   };
 
@@ -347,14 +408,12 @@ export default function PetualanganBilanganCacah() {
     setDraggedItems([...draggedItems, item]);
   };
 
-  // Check order answer
+  // Modifikasi fungsi checkOrderAnswer
   const checkOrderAnswer = () => {
-    // Only allow answering once
     if (orderAnswered) return;
 
     const question = numbers.order[currentOrder];
 
-    // Check if all numbers are in the drop zone
     if (dropZoneItems.length !== question.numbers.length) {
       setOrderResult({
         message: "Masukkan semua bilangan ke kotak!",
@@ -363,7 +422,6 @@ export default function PetualanganBilanganCacah() {
       return;
     }
 
-    // Check if the order is correct
     let isCorrect = true;
     for (let i = 0; i < dropZoneItems.length; i++) {
       if (dropZoneItems[i] !== question.answer[i]) {
@@ -377,7 +435,11 @@ export default function PetualanganBilanganCacah() {
         message: "Benar! 🎉",
         isCorrect: true,
       });
-      setScore((prevScore) => prevScore + 10); // 10 points per question
+      setScore((prevScore) => prevScore + 10);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        order: prev.order + 1
+      }));
       characterJump();
       createConfetti();
     } else {
@@ -386,8 +448,6 @@ export default function PetualanganBilanganCacah() {
         isCorrect: false,
       });
     }
-
-    // Mark as answered regardless of correctness
     setOrderAnswered(true);
   };
 
@@ -435,6 +495,52 @@ export default function PetualanganBilanganCacah() {
       setInputNumber("");
     }
   }, [currentGame, currentWrite]);
+
+  // Fungsi untuk menyimpan progress
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 1,
+      level: 1,
+      jenis_permainan: "Petualangan Bilangan Cacah",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: gameCompleted,
+      detail_jawaban: {
+        jawaban: [
+          {
+            bagian: "read",
+            total_benar: correctAnswers.read,
+            total_soal: numbers.read.length
+          },
+          {
+            bagian: "write",
+            total_benar: correctAnswers.write,
+            total_soal: numbers.write.length
+          },
+          {
+            bagian: "compare",
+            total_benar: correctAnswers.compare,
+            total_soal: numbers.compare.length
+          },
+          {
+            bagian: "order",
+            total_benar: correctAnswers.order,
+            total_soal: numbers.order.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  // Save progress when score or game completion status changes
+  useEffect(() => {
+    if (score > 0 || gameCompleted) {
+      handleSaveProgress();
+    }
+  }, [score, gameCompleted]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4">
@@ -538,8 +644,8 @@ export default function PetualanganBilanganCacah() {
             {readResult.message && (
               <div
                 className={`p-4 rounded-lg shadow my-4 ${readResult.isCorrect
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
                   }`}
               >
                 {readResult.message}
@@ -585,8 +691,8 @@ export default function PetualanganBilanganCacah() {
             {writeResult.message && (
               <div
                 className={`p-4 rounded-lg shadow my-4 ${writeResult.isCorrect
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
                   }`}
               >
                 {writeResult.message}
@@ -647,8 +753,8 @@ export default function PetualanganBilanganCacah() {
             {compareResult.message && (
               <div
                 className={`p-4 rounded-lg shadow my-4 ${compareResult.isCorrect
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
                   }`}
               >
                 {compareResult.message}
@@ -716,8 +822,8 @@ export default function PetualanganBilanganCacah() {
             {orderResult.message && (
               <div
                 className={`p-4 rounded-lg shadow my-4 ${orderResult.isCorrect
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
                   }`}
               >
                 {orderResult.message}
@@ -780,7 +886,7 @@ export default function PetualanganBilanganCacah() {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

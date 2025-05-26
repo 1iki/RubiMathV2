@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 // Data soal
 const questions = [
@@ -134,6 +135,34 @@ export default function App() {
       return 'Terus berlatih! 👍\nKamu pasti bisa lebih baik!';
     }
   };
+
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 3,
+      level: 1,
+      jenis_permainan: "Pecahan",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: quizCompleted,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score === 100 ? questions.length : 0,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || quizCompleted) {
+      handleSaveProgress();
+    }
+  }, [score, quizCompleted]);
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-50" style={{

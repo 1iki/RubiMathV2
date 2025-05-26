@@ -1,9 +1,37 @@
 import { useState, useEffect } from "react";
 import { Triangle, Square, Circle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./Bab5_game.css";
+import supabase from "../../../../config/supabase";
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 // Game utama
 export default function MathGame() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  
+  // Redirect jika tidak ada user
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Jika masih loading, tampilkan loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4 flex items-center justify-center">
+        <div className="text-2xl font-bold text-gray-700">Loading...</div>
+      </div>
+    );
+  }
+
+  // Jika tidak ada user, jangan render game
+  if (!user) {
+    return null;
+  }
+
   // State untuk melacak permainan
   const [gameState, setGameState] = useState({
     screen: "game", // langsung mulai game ('game', 'result')
@@ -15,6 +43,35 @@ export default function MathGame() {
     feedback: "",
     showHint: false,
   });
+
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 5,
+      level: 1,
+      jenis_permainan: "Bangun Datar",
+      skor: Math.round(gameState.score),
+      skor_maksimal: 100,
+      status_selesai: gameState.completed,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: gameState.correctAnswers,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  // Simpan progress saat score berubah atau game selesai
+  useEffect(() => {
+    if (gameState.score > 0 || gameState.completed) {
+      handleSaveProgress();
+    }
+  }, [gameState.score, gameState.completed]);
 
   // Langsung memulai game saat komponen dimuat
   useEffect(() => {
@@ -187,10 +244,12 @@ export default function MathGame() {
     const currentQuestion = questions[gameState.questionIndex];
 
     if (selectedAnswer === currentQuestion.answer) {
-      // Jawaban benar
+      // Menghitung skor dengan skala 0-100 untuk 15 soal
+      // Setiap soal benar bernilai 100/15 poin
+      const pointsPerQuestion = (100/questions.length).toFixed(2);
       setGameState({
         ...gameState,
-        score: gameState.score + 10,
+        score: Number((gameState.score + Number(pointsPerQuestion)).toFixed(2)),
         totalAnswered: gameState.totalAnswered + 1,
         correctAnswers: gameState.correctAnswers + 1,
         feedback: "Benar! 🎉",
@@ -256,9 +315,7 @@ export default function MathGame() {
   // Menghitung persentase jawaban benar
   const calculatePercentage = () => {
     if (gameState.totalAnswered === 0) return 0;
-    return Math.round(
-      (gameState.correctAnswers / gameState.totalAnswered) * 100
-    );
+    return Number(gameState.score.toFixed(2)); // Skor sudah dalam persentase 0-100, tampilkan 2 desimal
   };
 
   // Fungsi untuk mendapatkan grade berdasarkan persentase

@@ -1,9 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Home } from "lucide-react";
 import "../games4.css";
+import supabase from "../../../../config/supabase";
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 export default function KomposisiDanPengurangan() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  
+  // Redirect jika tidak ada user
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Jika masih loading, tampilkan loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4 flex items-center justify-center">
+        <div className="text-2xl font-bold text-gray-700">Loading...</div>
+      </div>
+    );
+  }
+
+  // Jika tidak ada user, jangan render game
+  if (!user) {
+    return null;
+  }
 
   // Game variables
   const [score, setScore] = useState(0);
@@ -48,6 +74,12 @@ export default function KomposisiDanPengurangan() {
   // Game data
   const [compositionQuestions, setCompositionQuestions] = useState([]);
   const [subtractionQuestions, setSubtractionQuestions] = useState([]);
+
+  // Tambahkan state untuk melacak jawaban benar
+  const [correctAnswers, setCorrectAnswers] = useState({
+    composition: 0,
+    subtraction: 0
+  });
 
   // Generate questions on component mount
   useEffect(() => {
@@ -233,7 +265,6 @@ export default function KomposisiDanPengurangan() {
 
   // Check composition answer
   const checkCompositionAnswer = (selectedAnswer) => {
-    // Only allow answering once
     if (compositionAnswered) return;
 
     const question = compositionQuestions[currentComposition];
@@ -243,7 +274,11 @@ export default function KomposisiDanPengurangan() {
         message: "Benar! 🎉",
         isCorrect: true,
       });
-      setScore((prevScore) => prevScore + 10); // 10 points per question
+      setScore((prevScore) => prevScore + 10);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        composition: prev.composition + 1
+      }));
       characterJump();
       createConfetti();
     } else {
@@ -252,8 +287,6 @@ export default function KomposisiDanPengurangan() {
         isCorrect: false,
       });
     }
-
-    // Mark as answered regardless of correctness
     setCompositionAnswered(true);
   };
 
@@ -281,7 +314,6 @@ export default function KomposisiDanPengurangan() {
 
   // Check subtraction answer
   const checkSubtractionAnswer = (selectedAnswer) => {
-    // Only allow answering once
     if (subtractionAnswered) return;
 
     const question = subtractionQuestions[currentSubtraction];
@@ -291,7 +323,11 @@ export default function KomposisiDanPengurangan() {
         message: "Benar! 🎉",
         isCorrect: true,
       });
-      setScore((prevScore) => prevScore + 10); // 10 points per question
+      setScore((prevScore) => prevScore + 10);
+      setCorrectAnswers(prev => ({
+        ...prev,
+        subtraction: prev.subtraction + 1
+      }));
       characterJump();
       createConfetti();
     } else {
@@ -300,8 +336,6 @@ export default function KomposisiDanPengurangan() {
         isCorrect: false,
       });
     }
-
-    // Mark as answered regardless of correctness
     setSubtractionAnswered(true);
   };
 
@@ -347,6 +381,42 @@ export default function KomposisiDanPengurangan() {
   const handleBackToCategory = () => {
     navigate("/category4_bab1");
   };
+
+  // Modifikasi fungsi saveGameProgress
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 1,
+      level: 2,
+      jenis_permainan: "Komposisi dan Pengurangan Bilangan Cacah",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: gameCompleted,
+      detail_jawaban: {
+        jawaban: [
+          {
+            bagian: "composition",
+            total_benar: correctAnswers.composition,
+            total_soal: compositionQuestions.length
+          },
+          {
+            bagian: "subtraction",
+            total_benar: correctAnswers.subtraction,
+            total_soal: subtractionQuestions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  // Modifikasi useEffect untuk menyimpan progress
+  useEffect(() => {
+    if (score > 0 || gameCompleted) {
+      handleSaveProgress();
+    }
+  }, [score, gameCompleted]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4">

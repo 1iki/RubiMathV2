@@ -3,9 +3,13 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "./game.css";
+import { useAuth } from "./context/AuthContext";
+import supabase from "./config/supabase";
 
 export default function GamePage() {
   const { chapterIndex, levelIndex } = useParams();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [jawaban, setJawaban] = useState("");
   const [skor, setSkor] = useState(0);
   const [soalIndex, setSoalIndex] = useState(0);
@@ -15,7 +19,27 @@ export default function GamePage() {
   const [wrongAnswers, setWrongAnswers] = useState([]);
   const [isRetryMode, setIsRetryMode] = useState(false);
   const [soalStatus, setSoalStatus] = useState([]);
-  const navigate = useNavigate();
+  
+  // Redirect jika tidak ada user
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Jika masih loading, tampilkan loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4 flex items-center justify-center">
+        <div className="text-2xl font-bold text-gray-700">Loading...</div>
+      </div>
+    );
+  }
+
+  // Jika tidak ada user, jangan render game
+  if (!user) {
+    return null;
+  }
   
   const bankSoal = {
     0: { 
@@ -220,6 +244,62 @@ export default function GamePage() {
       localStorage.removeItem("retryMode");
     }
   }, []);
+
+  // Fungsi untuk menyimpan progress game
+  const saveGameProgress = async () => {
+    try {
+      const { data: siswaData, error: siswaError } = await supabase
+        .from("siswa")
+        .select("id_siswa")
+        .eq("auth_user_id", user.id)
+        .single();
+
+      if (siswaError) {
+        console.error("Error getting siswa data:", siswaError);
+        return;
+      }
+
+      const gameData = {
+        id_siswa: siswaData.id_siswa,
+        kelas: parseInt(chapterIndex) + 1,
+        bab: parseInt(levelIndex) + 1,
+        level: 1,
+        jenis_permainan: "Game Umum",
+        skor: skor,
+        skor_maksimal: 100,
+        status_selesai: soalIndex >= getTotalSoal(),
+        detail_jawaban: {
+          jawaban: [
+            {
+              total_benar: soalStatus.filter(status => status).length,
+              total_soal: getTotalSoal()
+            }
+          ]
+        }
+      };
+
+      const { error: progressError } = await supabase.rpc(
+        "update_game_progress",
+        gameData
+      );
+
+      if (progressError) {
+        console.error("Error saving game progress:", progressError);
+        return;
+      }
+
+      console.log("Game progress saved successfully!");
+    } catch (error) {
+      console.error("Error in saveGameProgress:", error);
+    }
+  };
+
+  // Simpan progress saat skor berubah atau game selesai
+  useEffect(() => {
+    if (skor > 0 || soalIndex >= getTotalSoal()) {
+      saveGameProgress();
+    }
+  }, [skor, soalIndex]);
 
   return (
     <div className="game-page">

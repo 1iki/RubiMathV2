@@ -6,100 +6,140 @@ import bronzeBadge from "../../../assets/bronze.PNG";
 import silverBadge from "../../../assets/silver.PNG";
 import goldBadge from "../../../assets/gold.PNG";
 import backgroundImage from "../../../assets/mainsiswa.jpg";
+import supabase from "../../../config/supabase";
+import { getGameProgress } from "../../../services/gameProgressService";
 
-const chapters = [
-  { title: "Bab 1", levels: ["Level 1"] },
-  { title: "Bab 2", levels: ["Level 1"] },
-  { title: "Bab 3", levels: ["Level 1"] },
-  { title: "Bab 4", levels: ["Level 1"] },
-  { title: "Bab 5", levels: ["Level 1"] },
-  { title: "Bab 6", levels: ["Level 1"] },
-];
+// Definisi struktur game yang sebenarnya
+const gameStructure = {
+  1: { levels: 4, title: "Bab 1", description: "Bilangan Cacah" },
+  2: { levels: 4, title: "Bab 2", description: "Operasi Hitung" },
+  3: { levels: 2, title: "Bab 3", description: "Kelipatan dan Faktor" },
+  4: { levels: 2, title: "Bab 4", description: "Pengukuran" },
+  5: { levels: 1, title: "Bab 5", description: "Statistika" },
+  6: { levels: 1, title: "Bab 6", description: "Pengolahan Data" }
+};
+
+const TOTAL_LEVELS = 14; // Total semua level
+const BRONZE_THRESHOLD = 30; // 30% untuk Bronze
+const SILVER_THRESHOLD = 60; // 60% untuk Silver
+const GOLD_THRESHOLD = 100;  // 100% untuk Gold
 
 export default function MainSiswa4() {
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [globalProgress, setGlobalProgress] = useState(0);
-  const [chapterProgress, setChapterProgress] = useState(
-    Array(chapters.length).fill(0)
-  );
+  const [chapterProgress, setChapterProgress] = useState({});
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [userData, setUserData] = useState({
     completedLevels: 0,
+    totalScore: 0,
+    averageScore: 0
   });
   const [completedCategoriesMap, setCompletedCategoriesMap] = useState({});
   const navigate = useNavigate();
 
+  // Fungsi untuk mengambil progress dari database
+  const fetchGameProgress = async (userId) => {
+    try {
+      let totalCompleted = 0;
+      let totalScore = 0;
+      let completedGames = 0;
+      const chaptersProgress = {};
+
+      // Iterasi setiap bab
+      for (const [bab, structure] of Object.entries(gameStructure)) {
+        chaptersProgress[bab] = {
+          completed: 0,
+          totalLevels: structure.levels,
+          scores: []
+        };
+
+        // Iterasi setiap level dalam bab
+        for (let level = 1; level <= structure.levels; level++) {
+          const progress = await getGameProgress(4, parseInt(bab), level);
+          
+          if (progress) {
+            if (progress.status_selesai) {
+              totalCompleted++;
+              chaptersProgress[bab].completed++;
+            }
+            if (progress.skor) {
+              chaptersProgress[bab].scores.push(progress.skor);
+              totalScore += progress.skor;
+              completedGames++;
+            }
+          }
+        }
+      }
+
+      // Hitung progress global dan rata-rata skor
+      const globalProgressPercent = (totalCompleted / TOTAL_LEVELS) * 100;
+      const averageScore = completedGames > 0 ? totalScore / completedGames : 0;
+
+      // Update state
+      setGlobalProgress(globalProgressPercent);
+      setChapterProgress(chaptersProgress);
+      setUserData({
+        completedLevels: totalCompleted,
+        totalScore: totalScore,
+        averageScore: averageScore
+      });
+
+    } catch (error) {
+      console.error('Error fetching game progress:', error);
+    }
+  };
+
   useEffect(() => {
-    // Pastikan halaman terlihat dengan menambahkan logging
     console.log("MainSiswa4 mounted");
     document.body.style.backgroundColor = "#ffffff";
     document.body.style.color = "#333333";
     
-    // Cek apakah user sudah login
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (!isLoggedIn) {
       navigate("/login");
       return;
     }
 
-    // Get user data from localStorage
     const userDataString = localStorage.getItem("userData");
     const userData = userDataString ? JSON.parse(userDataString) : null;
     
     if (userData && userData.nama) {
       setSelectedAvatar({ name: userData.nama });
+      if (userData.id_siswa) {
+        fetchGameProgress(userData.id_siswa);
+      }
     } else {
       console.warn("No user data found in localStorage");
       navigate("/login");
       return;
     }
 
-    // Keep avatar image but use student name
     const savedAvatar = localStorage.getItem("selectedAvatar");
     if (savedAvatar) {
       const avatar = JSON.parse(savedAvatar);
       setSelectedAvatar({
         ...avatar,
-        displayName: userData.nama // Use student name from userData
+        displayName: userData.nama
       });
-
-      // Ambil progress yang spesifik untuk avatar ini
-      const avatarKey = `avatar_${avatar.name}_levelScores`;
-      const levelScores = JSON.parse(localStorage.getItem(avatarKey)) || {};
-
-      // Menghitung level yang telah diselesaikan
-      let completedLevelsCount = 0;
-
-      // Calculate chapter progress based on completed levels
-      const newChapterProgress = Array(chapters.length).fill(0);
-
-      // Update UI with calculated progress
-      setChapterProgress(newChapterProgress);
-      setUserData({ completedLevels: completedLevelsCount });
-      setCompletedCategoriesMap({});
-
-      // Calculate global progress (average of all chapters)
-      const totalProgress =
-        newChapterProgress.reduce((acc, val) => acc + val, 0) / chapters.length;
-      setGlobalProgress(totalProgress);
-
-      // Save the new progress calculations
-      const avatarProgressKey = `avatar_${avatar.name}_chapterProgress`;
-      localStorage.setItem(
-        avatarProgressKey,
-        JSON.stringify(newChapterProgress)
-      );
-    } else {
-      // Jika tidak ada avatar, gunakan data dari localStorage normal (backwards compatibility)
-      const storedProgress =
-        JSON.parse(localStorage.getItem("chapterProgress")) ||
-        Array(chapters.length).fill(0);
-      setChapterProgress(storedProgress);
-      const totalProgress =
-        storedProgress.reduce((acc, val) => acc + val, 0) / chapters.length;
-      setGlobalProgress(totalProgress);
     }
   }, [navigate]);
+
+  // Fungsi untuk mendapatkan total level dalam satu bab
+  const getLevelsInChapter = (chapterIndex) => {
+    return gameStructure[chapterIndex + 1].levels;
+  };
+
+  // Fungsi untuk mengecek apakah level sudah selesai
+  const isLevelCompleted = (chapterIndex, levelIndex) => {
+    const bab = chapterIndex + 1;
+    const level = levelIndex + 1;
+    return completedCategoriesMap[`bab${bab}_level${level}`] || false;
+  };
+
+  // Fungsi untuk mendapatkan progress level dalam persen
+  const getLevelProgress = (chapterIndex, levelIndex) => {
+    return isLevelCompleted(chapterIndex, levelIndex) ? 100 : 0;
+  };
 
   // Modified to handle both direct navigation for Bab 1 and popup for other chapters
   const handleChapterClick = (index) => {
@@ -163,27 +203,204 @@ export default function MainSiswa4() {
     navigate("/skor");
   };
 
-  // Fungsi untuk mendapatkan status apakah level sudah diselesaikan
-  const isLevelCompleted = (chapterIndex, levelIndex) => {
-    if (!selectedAvatar) return false;
+  // Render progress bar dengan milestone markers
+  const renderProgressBar = () => (
+    <div className="progress-container" style={{ 
+      position: "relative", 
+      zIndex: 1, 
+      backgroundColor: "transparent",
+      padding: "15px"
+    }}>
+      <div className="progress-info" style={{ color: "white" }}>
+        <p>Progress <strong>{selectedAvatar ? selectedAvatar.displayName : "Siswa"}</strong>: {Math.round(globalProgress)}%</p>
+        <p>Game Selesai: <strong>{userData.completedLevels}</strong> dari {TOTAL_LEVELS}</p>
+        {userData.averageScore > 0 && (
+          <p>Rata-rata Skor: <strong>{Math.round(userData.averageScore)}</strong></p>
+        )}
+      </div>
 
-    const levelKey = `bab${chapterIndex}_level${levelIndex}`;
-    return (
-      completedCategoriesMap[levelKey] &&
-      completedCategoriesMap[levelKey].length > 0
-    );
-  };
+      {/* Progress Bar with Milestone Markers */}
+      <div className="progress-bar" style={{ 
+        position: "relative", 
+        marginBottom: "20px",
+        width: "90%",
+        margin: "0 auto 30px auto",
+        height: "15px",
+        backgroundColor: "rgba(255, 255, 255, 0.2)",
+        borderRadius: "10px",
+        overflow: "hidden"
+      }}>
+        <motion.div
+          className="progress"
+          style={{
+            width: `${globalProgress}%`,
+            height: "100%",
+            backgroundColor: "#ff5722",
+            borderRadius: "10px",
+            transition: "width 0.5s ease-out"
+          }}
+          initial={{ width: 0 }}
+          animate={{ width: `${globalProgress}%` }}
+          transition={{ duration: 0.8 }}
+        />
+        
+        {/* Milestone markers */}
+        <div style={{ 
+          position: "absolute", 
+          left: `${BRONZE_THRESHOLD}%`, 
+          top: -2, 
+          bottom: -2, 
+          width: "3px", 
+          backgroundColor: "#cd7f32",
+          transform: "translateX(-50%)"
+        }} />
+        <div style={{ 
+          position: "absolute", 
+          left: `${SILVER_THRESHOLD}%`, 
+          top: -2, 
+          bottom: -2, 
+          width: "3px", 
+          backgroundColor: "#c0c0c0",
+          transform: "translateX(-50%)"
+        }} />
+        <div style={{ 
+          position: "absolute", 
+          right: "0", 
+          top: -2, 
+          bottom: -2, 
+          width: "3px", 
+          backgroundColor: "#ffd700",
+          transform: "translateX(50%)"
+        }} />
+      </div>
 
-  // Function to get the level progress percentage
-  const getLevelProgress = (chapterIndex, levelIndex) => {
-    if (!selectedAvatar) return 0;
+      {/* Badges */}
+      <div style={{ 
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: "30px",
+        position: "relative",
+        padding: "0",
+        height: "70px",
+        width: "90%",
+        margin: "0 auto",
+        overflow: "visible"
+      }}>
+        {/* Bronze Badge */}
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center",
+          position: "absolute",
+          left: `${BRONZE_THRESHOLD}%`, 
+          transform: "translateX(-50%)"
+        }}>
+          <img 
+            src={bronzeBadge} 
+            alt="Bronze Badge" 
+            style={{
+              width: "60px",
+              height: "60px",
+              marginRight: "10px",
+              opacity: globalProgress >= BRONZE_THRESHOLD ? "1" : "0.4",
+              filter: globalProgress >= BRONZE_THRESHOLD ? "none" : "grayscale(80%)",
+              transition: "all 0.3s ease"
+            }} 
+          />
+          <div>
+            <p style={{
+              margin: 0,
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+              textAlign: "left",
+              opacity: globalProgress >= BRONZE_THRESHOLD ? "1" : "0.6"
+            }}>Bronze</p>
+            <p style={{
+              margin: "2px 0 0 0",
+              fontSize: "0.8rem",
+              textAlign: "left",
+              color: globalProgress >= BRONZE_THRESHOLD ? "#ff5722" : "#999999"
+            }}>{BRONZE_THRESHOLD}%</p>
+          </div>
+        </div>
 
-    const levelKey = `bab${chapterIndex}_level${levelIndex}`;
-    if (!completedCategoriesMap[levelKey]) return 0;
+        {/* Silver Badge */}
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center",
+          position: "absolute",
+          left: `${SILVER_THRESHOLD}%`, 
+          transform: "translateX(-50%)"
+        }}>
+          <img 
+            src={silverBadge} 
+            alt="Silver Badge" 
+            style={{
+              width: "60px",
+              height: "60px",
+              marginRight: "10px",
+              opacity: globalProgress >= SILVER_THRESHOLD ? "1" : "0.4",
+              filter: globalProgress >= SILVER_THRESHOLD ? "none" : "grayscale(80%)",
+              transition: "all 0.3s ease"
+            }}
+          />
+          <div>
+            <p style={{
+              margin: 0,
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+              textAlign: "left",
+              opacity: globalProgress >= SILVER_THRESHOLD ? "1" : "0.6"
+            }}>Silver</p>
+            <p style={{
+              margin: "2px 0 0 0",
+              fontSize: "0.8rem",
+              textAlign: "left",
+              color: globalProgress >= SILVER_THRESHOLD ? "#ff5722" : "#999999"
+            }}>{SILVER_THRESHOLD}%</p>
+          </div>
+        </div>
 
-    // Return percentage based on completion status
-    return completedCategoriesMap[levelKey].length > 0 ? 100 : 0;
-  };  return (
+        {/* Gold Badge */}
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center",
+          position: "absolute",
+          left: "100%", 
+          transform: "translateX(-50%)"
+        }}>
+          <img 
+            src={goldBadge} 
+            alt="Gold Badge" 
+            style={{
+              width: "60px",
+              height: "60px",
+              marginRight: "10px",
+              opacity: globalProgress >= GOLD_THRESHOLD ? "1" : "0.4",
+              filter: globalProgress >= GOLD_THRESHOLD ? "none" : "grayscale(80%)",
+              transition: "all 0.3s ease"
+            }}
+          />
+          <div>
+            <p style={{
+              margin: 0,
+              fontWeight: "bold",
+              fontSize: "0.9rem",
+              textAlign: "left",
+              opacity: globalProgress >= GOLD_THRESHOLD ? "1" : "0.6"
+            }}>Gold</p>
+            <p style={{
+              margin: "2px 0 0 0",
+              fontSize: "0.8rem",
+              textAlign: "left",
+              color: globalProgress >= GOLD_THRESHOLD ? "#ff5722" : "#999999"
+            }}>{GOLD_THRESHOLD}%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
     <div className="main-siswa-container" style={{
       color: "#333333",
       backgroundImage: `url(${backgroundImage})`,
@@ -227,161 +444,18 @@ export default function MainSiswa4() {
         </div>
       </header>
 
-      <div className="progress-container" style={{ 
-        position: "relative", 
-        zIndex: 1, 
-        backgroundColor: "transparent",
-        padding: "15px"
-      }}>        
-        <div className="progress-info" style={{ color: "white" }}>
-          <p>
-            Progress{" "}
-            <strong>{selectedAvatar ? selectedAvatar.displayName : "Siswa"}</strong>:{" "}
-            {Math.round(globalProgress)}%
-          </p>
-          <p>
-            Level Selesai: <strong>{userData.completedLevels}</strong> dari 9
-          </p>
-        </div>
-          {/* Progress Bar with Milestone Markers */}
-        <div className="progress-bar" style={{ 
-          position: "relative", 
-          marginBottom: "20px",
-          width: "90%",
-          margin: "0 auto 30px auto",
-          height: "15px" // Increased height of the progress bar
-        }}>          {/* Bronze marker at 30% */}
-          <div style={{ position: "absolute", left: "30%", top: -2, bottom: -2, width: "3px", backgroundColor: "#ff5722" }}></div>
-          {/* Silver marker at 60% */}
-          <div style={{ position: "absolute", left: "60%", top: -2, bottom: -2, width: "3px", backgroundColor: "#ff5722" }}></div>
-          {/* Gold marker at 100% */}
-          <div style={{ position: "absolute", right: "0", top: -2, bottom: -2, width: "3px", backgroundColor: "#ff5722" }}></div>
-          
-          <motion.div
-            className="progress"
-            style={{ width: `${globalProgress}%` }}
-            initial={{ width: 0 }}
-            animate={{ width: `${globalProgress}%` }}
-            transition={{ duration: 0.8 }}
-          />
-        </div>
-          {/* Badges row below progress bar */}
-        <div style={{ 
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "30px",
-          position: "relative",
-          padding: "0",
-          height: "70px", // Increased height
-          width: "90%",  /* Match progress bar width */
-          margin: "0 auto",  /* Center like progress bar */
-          overflow: "visible" /* Allow badges to be visible if they overflow */
-        }}>
-          <div style={{ 
-            display: "flex", 
-            alignItems: "center",
-            position: "absolute",
-            left: "30%", 
-            transform: "translateX(-50%)"
-          }}>            <img src={bronzeBadge} alt="Bronze Badge" style={{
-              width: "60px", 
-              height: "60px",
-              marginRight: "10px",
-              opacity: globalProgress >= 30 ? "1" : "0.4",
-              filter: globalProgress >= 30 ? "none" : "grayscale(80%)",
-              transition: "all 0.3s ease"
-            }} />
-            <div>
-              <p style={{
-                margin: 0,
-                fontWeight: "bold",
-                fontSize: "0.9rem",
-                textAlign: "left",
-                opacity: globalProgress >= 30 ? "1" : "0.6"
-              }}>Bronze</p>
-              <p style={{
-                margin: "2px 0 0 0",
-                fontSize: "0.8rem",
-                textAlign: "left",
-                color: globalProgress >= 30 ? "#ff5722" : "#999999"
-              }}>30%</p>
-            </div>
-          </div>
-          
-          <div style={{ 
-            display: "flex", 
-            alignItems: "center",
-            position: "absolute",
-            left: "60%", 
-            transform: "translateX(-50%)"
-          }}>            <img src={silverBadge} alt="Silver Badge" style={{
-              width: "60px", 
-              height: "60px",
-              marginRight: "10px",
-              opacity: globalProgress >= 60 ? "1" : "0.4",
-              filter: globalProgress >= 60 ? "none" : "grayscale(80%)",
-              transition: "all 0.3s ease"
-            }}/>
-            <div>
-              <p style={{
-                margin: 0,
-                fontWeight: "bold",
-                fontSize: "0.9rem",
-                textAlign: "left",
-                opacity: globalProgress >= 60 ? "1" : "0.6"
-              }}>Silver</p>
-              <p style={{
-                margin: "2px 0 0 0",
-                fontSize: "0.8rem",
-                textAlign: "left",
-                color: globalProgress >= 60 ? "#ff5722" : "#999999"
-              }}>60%</p>
-            </div>
-          </div>
-          
-          <div style={{ 
-            display: "flex", 
-            alignItems: "center",
-            position: "absolute",
-            left: "calc(100% - 2px)", /* Adjust slightly to avoid overlapping right border */
-            transform: "translateX(-50%)"
-          }}>              <img src={goldBadge} alt="Gold Badge" style={{
-              width: "60px", 
-              height: "60px",
-              marginRight: "10px",
-              opacity: globalProgress >= 100 ? "1" : "0.4",
-              filter: globalProgress >= 100 ? "none" : "grayscale(80%)",
-              transition: "all 0.3s ease"
-            }}/>
-            <div style={{ whiteSpace: "nowrap" }}>
-              <p style={{
-                margin: 0,
-                fontWeight: "bold",
-                fontSize: "0.9rem",
-                textAlign: "left",
-                opacity: globalProgress >= 100 ? "1" : "0.6"
-              }}>Gold</p>
-              <p style={{
-                margin: "2px 0 0 0",
-                fontSize: "0.8rem",
-                textAlign: "left",
-                color: globalProgress >= 100 ? "#ff5722" : "#999999"
-              }}>100%</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Render progress bar */}
+      {renderProgressBar()}
 
       <div className="chapter-buttons"style={{ position: "relative", zIndex: 1 }}>
-        {chapters.map((chapter, index) => (          <motion.button
-            key={index}
+        {Object.entries(gameStructure).map(([bab, info], index) => (          <motion.button
+            key={bab}
             className="big-chapter-button"
-            onClick={() => handleChapterClick(index)}
+            onClick={() => handleChapterClick(parseInt(bab) - 1)}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 * index }}            style={{
               backgroundColor: "rgba(0, 0, 0, 0.6)",
-              // border: "2px solid #ff5722",
               color: "white",
               textShadow: "1px 1px 2px black",
               padding: "25px 15px 15px",
@@ -391,7 +465,17 @@ export default function MainSiswa4() {
               flexDirection: "column",
               alignItems: "center"
             }}>
-            {chapter.title}
+            <div>{info.title}</div>
+            <div style={{ fontSize: "1rem", opacity: 0.8 }}>{info.description}</div>
+            {chapterProgress[bab] && (
+              <div style={{ 
+                fontSize: "0.9rem", 
+                marginTop: "8px",
+                color: chapterProgress[bab].completed === info.levels ? "#4CAF50" : "#FFA726"
+              }}>
+                {chapterProgress[bab].completed}/{info.levels} Selesai
+              </div>
+            )}
           </motion.button>
         ))}
       </div>      {selectedChapter !== null && selectedChapter !== 0 && (
@@ -409,10 +493,10 @@ export default function MainSiswa4() {
               border: "2px solid #ff5722",
               color: "white"
             }}
-          >            <h2>{chapters[selectedChapter].title}</h2>
+          >            <h2>{gameStructure[selectedChapter + 1].title}</h2>
 
             <div className="levels">
-              {chapters[selectedChapter].levels.map((level, levelIndex) => (
+              {gameStructure[selectedChapter + 1].levels.map((level, levelIndex) => (
                 <div key={levelIndex} className="level-container">
                   <button
                     className={`level-button ${

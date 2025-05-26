@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress } from "../../../../services/gameProgressService";
 
 const pairsInitial = [
   { decimal: "0,25", percent: "25%" },
@@ -33,6 +35,43 @@ const MatchingGameDecimalPercent = () => {
   // track dragged element id using ref to avoid stale closures for drag events
   const draggedIdRef = useRef(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  const handleSaveProgress = async () => {
+    if (!user) return;
+    
+    const gameData = {
+      kelas: 4,
+      bab: 2,
+      level: 4,
+      jenis_permainan: "Pecahan Desimal dan Persen",
+      skor: score,
+      skor_maksimal: pairsInitial.length,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score,
+            total_soal: pairsInitial.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
 
   useEffect(() => {
     resetGame();

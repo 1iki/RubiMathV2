@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 // Data pertanyaan
 const questions = [
@@ -122,6 +123,7 @@ export default function VolumeMeasurementGame() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [animateScore, setAnimateScore] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -129,6 +131,12 @@ export default function VolumeMeasurementGame() {
     const progress = (currentQuestion / questions.length) * 100;
     document.getElementById('progress').style.width = `${progress}%`;
   }, [currentQuestion]);
+
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
 
   const selectOption = (index) => {
     if (answered) return;
@@ -164,6 +172,7 @@ export default function VolumeMeasurementGame() {
     setAnswered(false);
     setSelectedOption(null);
     setShowResult(false);
+    setGameOver(false);
   };
 
   const goToCategory = () => {
@@ -206,6 +215,29 @@ export default function VolumeMeasurementGame() {
   const currentQuestionData = questions[currentQuestion];
   const resultMessage = getResultMessage();
   const questionIcon = getQuestionIcon(currentQuestion);
+
+  // Tambahkan fungsi handleSaveProgress
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 4,
+      level: 2,
+      jenis_permainan: "Pengukuran Level 2",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score === 100 ? questions.length : 0,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
 
   // Styles
   const styles = {

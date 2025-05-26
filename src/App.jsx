@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  HashRouter as Router,
+  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -112,6 +112,7 @@ import Bab4_Level2 from "./pages/game/kelas4/Bab4/Bab4_Level2";
 import Bab5_Level1 from "./pages/game/kelas4/Bab5/Bab5";
 // bab6
 import Bab6_Level1 from "./pages/game/kelas4/Bab6/Bab6_Level1";
+import ProtectedGameRoute from "./components/ProtectedGameRoute";
 
 // Komponen untuk proteksi rute
 const ProtectedRoute = ({ children }) => {
@@ -375,126 +376,126 @@ export default function App() {
         <Route
           path="/game/kelas4/bab1/level1"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <PetualanganBilanganCacah />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Komposisi dan Pengurangan - Bab 1 Level 2 */}
         <Route
           path="/game/kelas4/bab1/level2"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <KomposisiDanPengurangan />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Latihan Perkalian dan Pembagian - Bab 1 Level 3 */}
         <Route
           path="/game/kelas4/bab1/level3"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <LatihanPerkalianPembagian />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Faktor Kelipatan Drag and Drop - Bab 1 Level 4 */}
         <Route
           path="/game/kelas4/bab1/level4"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <FaktorKelipatanDragDropGame />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Fraction Adventure - Bab 2 Level 1 */}
         <Route
           path="/game/kelas4/bab2/level1"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <FractionAdventure />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Fraction Game - Bab 2 Level 2 */}
         <Route
           path="/game/kelas4/bab2/level2"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <FractionGame />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Pecahan Desimal - Bab 2 Level 3 */}
         <Route
           path="/game/kelas4/bab2/level3"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <GamePecahanDesimal />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Pecahan Desimal - Bab 2 Level 4 */}
         <Route
           path="/game/kelas4/bab2/level4"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <GamePecahanDesimalPersen />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />{" "}
         {/* Route untuk game Pola Bilangan - Bab 3 Level 1 */}
         <Route
           path="/game/kelas4/bab3/level1"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <GamePolaBilangan />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Pola Bilangan - Bab 3 Level 2 */}
         <Route
           path="/game/kelas4/bab3/level2"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <GamePolaBilanganLevel2 />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Bab 4 Level 1 */}
         <Route
           path="/game/kelas4/bab4/level1"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <Bab4_Level1 />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Bab 4 Level 2 */}
         <Route
           path="/game/kelas4/bab4/level2"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <Bab4_Level2 />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Bab 5 Level 1 */}
         <Route
           path="/game/kelas4/bab5/level1"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <Bab5_Level1 />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Route untuk game Bab 6 Level 1 */}
         <Route
           path="/game/kelas4/bab6/level1"
           element={
-            <ProtectedRoute>
+            <ProtectedGameRoute>
               <Bab6_Level1 />
-            </ProtectedRoute>
+            </ProtectedGameRoute>
           }
         />
         {/* Routes for games with English names - redirect to Indonesian routes */}

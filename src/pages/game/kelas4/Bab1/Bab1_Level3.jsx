@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress } from "../../../../services/gameProgressService";
 import '../games4.css';
 
 const questions = [
@@ -49,6 +51,7 @@ const Confetti = ({ active }) => {
     const randomRotation = Math.random() * 360;
     const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const duration = `${Math.random() * 2 + 2}s`;
     
     return {
       width: `${randomSize}px`,
@@ -57,13 +60,12 @@ const Confetti = ({ active }) => {
       left: `${randomLeft}%`,
       transform: `rotate(${randomRotation}deg)`,
       animationDelay: `${randomDelay}s`,
-      animationDuration: `${Math.random() * 2 + 2}s`,
       position: 'absolute',
       top: '-10px',
       opacity: active ? 1 : 0,
       zIndex: 5,
       borderRadius: '50%',
-      animation: active ? 'confetti-fall 3s linear forwards' : 'none',
+      animation: active ? `confetti-fall ${duration} linear forwards` : 'none'
     };
   };
 
@@ -103,6 +105,43 @@ export default function GamePerkalianPembagian() {
   const [isFeedbackActive, setIsFeedbackActive] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [shuffledQuestions] = useState(() => shuffle([...questions]));
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  const handleSaveProgress = async () => {
+    if (!user) return;
+    
+    const gameData = {
+      kelas: 4,
+      bab: 1,
+      level: 3,
+      jenis_permainan: "Game Perkalian dan Pembagian",
+      skor: score,
+      skor_maksimal: questions.length * 10,
+      status_selesai: showScore,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score / 10,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || showScore) {
+      handleSaveProgress();
+    }
+  }, [score, showScore]);
 
   // Gunakan useMemo untuk menjaga konsistensi opsi jawaban
   const currentQuestion = shuffledQuestions[currentIdx];

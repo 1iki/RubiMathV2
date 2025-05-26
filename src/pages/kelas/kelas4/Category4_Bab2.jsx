@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "./style/Category4.css";
 import confetti from "react-confetti";
+import supabase from "../../../config/supabase";
+import { getGameProgress } from "../../../services/gameProgressService";
 
 // Define the levels data with icons, colors and content
 const levels = [
@@ -97,6 +99,7 @@ export default function Category4_Bab2() {
   const [completedLevels, setCompletedLevels] = useState([]);
   const [animateBackground, setAnimateBackground] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [levelStatus, setLevelStatus] = useState({});
 
   // Create refs for level 1 elements
   const level1Ref = useRef(null);
@@ -120,6 +123,26 @@ export default function Category4_Bab2() {
     speed: Math.random() * 100 + 50,
     delay: Math.random() * 20,
   }));
+
+  // Add new function to check completion status
+  const checkLevelCompletion = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData || !userData.id_siswa) return;
+
+      const completionStatus = {};
+      
+      // Check each level's completion status
+      for (const level of levels) {
+        const progress = await getGameProgress(4, 2, level.id);
+        completionStatus[level.id] = progress?.status_selesai || false;
+      }
+
+      setLevelStatus(completionStatus);
+    } catch (error) {
+      console.error("Error checking level completion:", error);
+    }
+  };
 
   useEffect(() => {
     // Check if user is logged in
@@ -153,7 +176,11 @@ export default function Category4_Bab2() {
       setShowHint(true);
     }, 3000);
 
-    return () => clearTimeout(hintTimer);
+    checkLevelCompletion();
+
+    return () => {
+      clearTimeout(hintTimer);
+    };
   }, [navigate]);
 
   const triggerConfetti = () => {
@@ -243,9 +270,9 @@ export default function Category4_Bab2() {
     }, 500);
   };
 
-  // Check if a level is completed
+  // Update isLevelCompleted function
   const isLevelCompleted = (levelNum) => {
-    return completedLevels.includes(levelNum);
+    return levelStatus[levelNum] || false;
   };
 
   return (

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 // Custom CSS for the component
 const styles = {
@@ -312,6 +313,7 @@ export default function App() {
   const [result, setResult] = useState({ message: '', isCorrect: false });
   const [hoveredButton, setHoveredButton] = useState(null);
   const [hoveredNext, setHoveredNext] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
 
   const startGame = () => {
     setGameState('playing');
@@ -319,6 +321,7 @@ export default function App() {
     setScore(0);
     setUserAnswers([]);
     setResult({ message: '', isCorrect: false });
+    setGameOver(false);
   };
 
   const selectAnswer = (answerIndex) => {
@@ -349,6 +352,7 @@ export default function App() {
       setResult({ message: '', isCorrect: false });
     } else {
       setGameState('finished');
+      setGameOver(true);
     }
   };
 
@@ -393,6 +397,36 @@ export default function App() {
     }
     return decorations;
   };
+
+  // Tambahkan fungsi handleSaveProgress
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 4,
+      level: 1,
+      jenis_permainan: "Pengukuran",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score >= 80 ? 1 : score >= 60 ? 0.5 : score >= 40 ? 0.25 : 0,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  // Tambahkan useEffect untuk menyimpan progress
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
 
   return (
     <div style={styles.container}>

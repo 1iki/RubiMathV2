@@ -1,7 +1,51 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress } from "../../../../services/gameProgressService";
 import "../games4.css";
 
 export default function FaktorKelipatanDragDropGame() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  const handleSaveProgress = async () => {
+    if (!user) return;
+    
+    const gameData = {
+      kelas: 4,
+      bab: 1,
+      level: 4,
+      jenis_permainan: "Game Faktor dan Kelipatan",
+      skor: score,
+      skor_maksimal: questions.length * pointsPerQuestion,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score / pointsPerQuestion,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
+
   // Questions data
   const questions = [
     {
@@ -71,7 +115,6 @@ export default function FaktorKelipatanDragDropGame() {
 
   // State
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
   const [candidates, setCandidates] = useState([]);
   // candidatesState: object: candidate number => 'candidates' | 'correct' | 'incorrect'
   const [candidateState, setCandidateState] = useState({});
@@ -171,13 +214,6 @@ export default function FaktorKelipatanDragDropGame() {
       setFeedback({ text: '❌ Jawaban kurang tepat. Jangan menyerah, coba pada soal berikutnya ya!', type: 'incorrect' });
     }
     setSubmitted(true);
-
-    // Jika ini adalah soal terakhir, tambahkan feedback spesial
-    if (currentQuestionIndex === totalQuestions - 1) {
-      setTimeout(() => {
-        setCurrentQuestionIndex(totalQuestions); // Set ke posisi "selesai"
-      }, 2000); // Tunggu 2 detik sebelum menampilkan hasil
-    }
   }
 
   function nextQuestion() {
@@ -289,6 +325,8 @@ export default function FaktorKelipatanDragDropGame() {
           font-family: 'Nunito', sans-serif;
           color: #2a3d45;
           user-select: none;
+          min-height: 100vh;
+          overflow-y: auto;
         }
         .container {
           position: relative;
@@ -302,8 +340,8 @@ export default function FaktorKelipatanDragDropGame() {
           padding: 40px 42px 60px;
           box-sizing: border-box;
           text-align: center;
-          margin: 40px auto 80px;
-          overflow: hidden;
+          margin: 40px auto;
+          overflow: visible;
           background-image: 
             radial-gradient(circle at 10% 10%, rgba(200, 230, 255, 0.5) 0%, transparent 30%),
             radial-gradient(circle at 90% 90%, rgba(220, 240, 250, 0.7) 0%, transparent 30%);
@@ -767,11 +805,18 @@ export default function FaktorKelipatanDragDropGame() {
         @media (max-width: 760px) {
           html {
             font-size: 16px;
+            height: 100%;
+          }
+          body {
+            min-height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
           }
           .container {
             padding: 30px 20px 40px;
-            margin: 20px auto 40px;
+            margin: 20px auto;
             border-radius: 20px;
+            overflow: visible;
           }
           h1 {
             font-size: 2.2rem;

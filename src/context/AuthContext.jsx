@@ -12,6 +12,17 @@ export const AuthProvider = ({ children }) => {
     // Check for existing session
     const checkUser = async () => {
       try {
+        // First check localStorage for offline/local auth
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        
+        if (isLoggedIn && userData) {
+          setUser(userData);
+          setLoading(false);
+          return;
+        }
+
+        // If no local auth, check Supabase
         if (!supabase) {
           console.error('Supabase client not initialized');
           setLoading(false);
@@ -21,14 +32,12 @@ export const AuthProvider = ({ children }) => {
         const { data: { user: authUser } } = await supabase.auth.getUser();
         
         if (authUser) {
-          // Set the app.current_user_id for RLS policies
           try {
             await supabase.rpc('set_current_user_id', {
               user_id: authUser.id
             });
           } catch (rpcError) {
             console.error('Error setting current user ID:', rpcError);
-            // Continue anyway
           }
           
           setUser(authUser);
@@ -41,36 +50,39 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    if (!supabase) {
-      console.error('Supabase client not initialized');
-      setLoading(false);
-      return;
-    }
+    checkUser();
 
+    // Subscribe to auth changes
+    if (supabase) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        // Set the app.current_user_id for RLS policies
         try {
           await supabase.rpc('set_current_user_id', {
             user_id: session.user.id
           });
         } catch (rpcError) {
           console.error('Error setting current user ID:', rpcError);
-          // Continue anyway
         }
         
         setUser(session.user);
+        } else {
+          // Check localStorage before setting user to null
+          const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+          const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+          
+          if (isLoggedIn && userData) {
+            setUser(userData);
       } else {
         setUser(null);
+          }
       }
       setLoading(false);
     });
 
-    checkUser();
-
     return () => {
       subscription?.unsubscribe();
     };
+    }
   }, []);
 
   const signIn = async (email, password) => {
@@ -95,14 +107,12 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      if (!supabase) {
-        throw new Error('Supabase client not initialized');
+      if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
       }
       
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      // Clear any local storage data
+      // Clear local storage
       localStorage.clear();
       setUser(null);
     } catch (error) {

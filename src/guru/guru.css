@@ -2,75 +2,222 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: auto;
-  overflow-y: scroll;
-  background: white;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto !important;
 }
 
-/* TabGuru Dashboard Styles */
-.tabguru-dashboard {
+/* Custom scrollbar styling for better user experience */
+/* ::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #6366f1;
+  border-radius: 10px;
+  border: 3px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #4f46e5;
+} */
+
+/* Teacher Dashboard Styles */
+.guru-dashboard {
   font-family: "Arial", sans-serif;
   background: white;
   margin: 0;
+  min-height: 100%;
+  height: auto;
+  position: relative;
+  overflow: visible;
 }
 
 /* Header styles */
-.tabguru-header {
+.header-guru-pages {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(to right, #6366f1, #8b5cf6);
   color: white;
-  padding: 1rem;
-  border-radius: 0 0 10px 10px;
+  padding: 1rem 2rem;
   margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-wrap: nowrap;
+  position: relative;
 }
 
-.tabguru-logo {
+.logo {
   display: flex;
   align-items: center;
-  font-weight: bold;
-  gap: 10px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.tabguru-logo i {
+.logo i {
   font-size: 1.8rem;
-}
-
-.tabguru-logo h1 {
-  margin: 0;
-  font-size: 1.5rem;
   color: white;
-}
-
-.tabguru-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px;
+  border-radius: 8px;
 }
 
-.tabguru-user-mode-button,
-.tabguru-home-button,
-.tabguru-logout-button {
+.logo h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.user-mode-button,
+.home-button,
+.logout-button-guru {
   background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 8px;
   color: white;
-  padding: 8px 12px;
+  padding: 8px 16px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  height: 40px;
+  min-width: fit-content;
 }
 
-.tabguru-user-mode-button:hover,
-.tabguru-home-button:hover,
-.tabguru-logout-button:hover {
+.user-mode-button:hover,
+.home-button:hover,
+.logout-button-guru:hover {
   background: rgba(255, 255, 255, 0.3);
 }
 
+/* Header Responsive Styles */
+@media (max-width: 1024px) {
+  .header-guru-pages {
+    padding: 1rem;
+  }
+
+  .logo i {
+    font-size: 1.5rem;
+  }
+
+  .user-mode-button,
+  .home-button,
+  .logout-button-guru {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-guru-pages {
+    padding: 0.75rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logo {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .logo i {
+    font-size: 1.4rem;
+    padding: 6px;
+  }
+
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+
+  .header-actions {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .user-mode-button,
+  .home-button,
+  .logout-button-guru {
+    padding: 6px 10px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-guru-pages {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .logo i {
+    font-size: 1.2rem;
+    padding: 5px;
+  }
+
+  .logo h1 {
+    font-size: 1rem;
+    max-width: 65%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-actions {
+    width: auto;
+    justify-content: flex-end;
+    margin-top: 0;
+    gap: 6px;
+  }
+
+  .user-mode-button,
+  .home-button,
+  .logout-button-guru {
+    padding: 5px 8px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .logout-button-guru {
+    position: relative;
+    right: 0;
+    min-width: auto;
+  }
+}
+
 /* Profile Container Styles */
-.tabguru-profile-container {
+.profile-container {
   display: flex;
   align-items: center;
   background: white;
@@ -80,7 +227,7 @@ body {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.tabguru-profile-avatar {
+.profile-avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -89,37 +236,37 @@ body {
   border: 4px solid #f3f4f6;
 }
 
-.tabguru-profile-avatar img {
+.profile-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.tabguru-profile-info {
+.profile-info {
   flex: 1;
 }
 
-.tabguru-profile-info h2 {
+.profile-info h2 {
   margin: 0 0 5px;
   text-transform: capitalize;
   color: #111827;
   font-size: 1.5rem;
 }
 
-.tabguru-profile-info p {
+.profile-info p {
   margin: 0 0 10px;
   color: #4b5563;
 }
 
-.tabguru-contact-info {
+.contact-info {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
   font-size: 0.9rem;
 }
 
-.tabguru-email-link,
-.tabguru-phone-link {
+.email-link,
+.phone-link {
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -127,19 +274,19 @@ body {
   gap: 8px;
 }
 
-.tabguru-email-link:hover,
-.tabguru-phone-link:hover {
+.email-link:hover,
+.phone-link:hover {
   text-decoration: underline;
 }
 
-.tabguru-student-count {
+.student-count {
   display: flex;
   align-items: center;
   color: #10b981;
   gap: 8px;
 }
 
-.tabguru-edit-profile-button {
+.edit-profile-button {
   background: #6366f1;
   color: white;
   border: none;
@@ -150,12 +297,12 @@ body {
   transition: background 0.3s;
 }
 
-.tabguru-edit-profile-button:hover {
+.edit-profile-button:hover {
   background: #4f46e5;
 }
 
 /* Tab Navigation Styles */
-.tabguru-tabs-nav {
+.tabs-nav {
   display: flex;
   background: white;
   border-radius: 10px;
@@ -164,7 +311,7 @@ body {
   overflow: hidden;
 }
 
-.tabguru-tab-button {
+.tab-button {
   flex: 1;
   background: none;
   border: none;
@@ -179,74 +326,76 @@ body {
   border-bottom: 2px solid transparent;
 }
 
-.tabguru-tab-button.tabguru-active {
+.tab-button.active {
   color: #6366f1;
   border-bottom: 2px solid #6366f1;
 }
 
-.tabguru-tab-button:hover:not(.tabguru-active) {
+.tab-button:hover:not(.active) {
   background: #f9fafb;
 }
 
-.tabguru-tab-icon {
+.tab-icon {
   margin-right: 10px;
   font-size: 1.2rem;
 }
 
 /* Tab Content Styles */
-.tabguru-tab-content {
+.tab-content {
   background: white;
   border-radius: 10px;
-  padding: 55px;
+  padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+  overflow: visible;
 }
 
 /* Student List Styles */
-.tabguru-search-filter-container {
+.search-filter-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  gap: 10px;
+  gap: 5px;
 }
 
-.tabguru-search-bar {
+.search-bar {
   flex: 1;
 }
 
-.tabguru-search-input-wrapper {
+.search-input-wrapper {
   position: relative;
-  width: 100%;
+  width: 98%;
 }
 
-.tabguru-search-icon {
+.search-icon {
   position: absolute;
-  left: 10px;
+  left: 1px;
   top: 50%;
   transform: translateY(-50%);
   color: #6b7280;
 }
 
-.tabguru-search-input {
+.search-input {
   padding: 10px 15px 10px 35px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 5px;
   outline: none;
   font-size: 0.9rem;
-  width: 100%;
+  margin-left: 25px;
 }
 
-.tabguru-search-input:focus {
+.search-input:focus {
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
-.tabguru-filter-dropdown {
+.filter-dropdown {
   display: flex;
   gap: 10px;
 }
 
-.tabguru-filter-select {
+.filter-select {
   padding: 10px 15px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -255,7 +404,7 @@ body {
   cursor: pointer;
 }
 
-.tabguru-filter-button {
+.filter-button {
   padding: 10px 15px;
   background: #6366f1;
   color: white;
@@ -268,19 +417,62 @@ body {
   font-weight: 600;
 }
 
-.tabguru-filter-button:hover {
+.filter-button:hover {
   background: #4f46e5;
 }
 
+/* Filter Section Styles */
+.filter-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-section label {
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.filter-section select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.export-button {
+  margin-left: auto;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.export-button:hover {
+  background-color: #388e3c;
+}
+
+.export-button:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+}
+
 /* Students Container Styles */
-.tabguru-students-container {
+.students-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   margin-bottom: 20px;
 }
 
-.tabguru-student-card {
+.student-card {
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 15px;
@@ -289,12 +481,12 @@ body {
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.tabguru-student-card:hover {
+.student-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
-.tabguru-student-avatar {
+.student-avatar {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -302,62 +494,61 @@ body {
   margin-bottom: 10px;
 }
 
-.tabguru-student-avatar img {
+.student-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.tabguru-student-info {
+.student-info {
   flex: 1;
   margin-bottom: 10px;
 }
 
-.tabguru-student-info h3 {
+.student-info h3 {
   margin: 0 0 5px;
   font-size: 1.1rem;
   color: #111827;
 }
 
-.tabguru-student-info p {
+.student-info p {
   margin: 0;
   color: #6b7280;
   font-size: 0.9rem;
 }
 
-.tabguru-parent-info {
+.parent-info {
   margin-top: 4px;
   font-size: 0.9em;
   color: #666;
 }
 
-.tabguru-parent-label {
+.parent-label {
   font-weight: 500;
   color: #444;
 }
 
-.tabguru-parent-info .tabguru-linked {
-  color: #4CAF50;
+.parent-info .linked {
+  color: #4caf50;
   font-weight: 500;
 }
 
-.tabguru-parent-info .tabguru-unlinked {
+.parent-info .unlinked {
   color: #f57c00;
   font-style: italic;
 }
 
-.tabguru-unlinked {
+.unlinked {
   color: #ef4444;
 }
 
-.tabguru-student-actions {
+.student-actions {
   display: flex;
   gap: 10px;
   margin-top: 10px;
-  flex-wrap: wrap;
 }
 
-.tabguru-action-button {
+.action-button {
   flex: 1;
   padding: 8px;
   border: none;
@@ -365,44 +556,79 @@ body {
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  min-width: 80px;
 }
 
-.tabguru-action-button.tabguru-tugas {
+.tugas {
   background-color: #dbeafe;
   color: #2563eb;
 }
 
-.tabguru-action-button.tabguru-catatan {
+.catatan {
   background-color: #fef3c7;
   color: #d97706;
 }
 
-.tabguru-action-button.tabguru-lihat-catatan {
-  background-color: #e0f2fe;
-  color: #0277bd;
-}
-
-.tabguru-action-button.tabguru-hapus {
+.hapus {
   background-color: #fee2e2;
   color: #dc2626;
 }
 
-.tabguru-action-button.tabguru-edit {
-  background-color: #f3e8ff;
-  color: #7c3aed;
+/* Add Student Container Styles */
+.add-student-container {
+  cursor: pointer;
+}
+
+.add-student-card {
+  border: 2px dashed #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.add-student-card:hover {
+  border-color: #6366f1;
+  background: #f9fafb;
+}
+
+.add-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.add-student-card p {
+  margin: 0 0 5px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.add-student-card small {
+  color: #6b7280;
 }
 
 /* Pagination Styles */
-.tabguru-pagination {
+.pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 20px;
 }
 
-.tabguru-pagination-prev,
-.tabguru-pagination-next {
+.pagination-prev,
+.pagination-next {
   background: none;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -411,7 +637,7 @@ body {
   color: #6b7280;
 }
 
-.tabguru-pagination-number {
+.pagination-number {
   margin: 0 5px;
   width: 36px;
   height: 36px;
@@ -425,164 +651,962 @@ body {
   background: none;
 }
 
-.tabguru-pagination-number.tabguru-pagination-active {
+.pagination-number.active {
   background: #6366f1;
   border-color: #6366f1;
   color: white;
 }
 
-/* Loading and Empty States */
-.tabguru-loading {
+/* Style untuk Tab Laporan */
+.reports {
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reports h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.report-filters {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 15px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 500;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.report-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.class-summary {
+  background-color: #f5f9ff;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.student-reports {
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.student-reports table {
+  width: 100%;
+  min-width: 600px; /* Ensure minimum width for readability */
+  border-collapse: collapse;
+}
+
+.student-reports th,
+.student-reports td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.student-reports th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+}
+
+.student-reports tr:hover {
+  background-color: #f7f9fc;
+}
+
+.student-reports button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+
+.student-reports button:hover {
+  background-color: #2980b9;
+}
+
+/* Modal Report */
+.report-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.report-modal .modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.report-modal .close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #555;
+}
+
+.report-modal .close:hover {
+  color: #000;
+}
+
+.report-modal h2 {
+  margin-top: 0;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.report-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.detail-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.chart-container {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chart-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #444;
+  text-align: center;
+}
+
+/* Base responsive setup */
+@media (max-width: 1024px) {
+  .header-guru-pages {
+    padding: 1rem;
+  }
+
+  .logo i {
+    font-size: 1.5rem;
+  }
+
+  .user-mode-button,
+  .home-button,
+  .logout-button-guru {
+    padding: 8px 12px;
+  }
+
+  .students-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  /* Header Adjustments */
+  .header-guru-pages {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+  }
+
+  .logo i {
+    font-size: 1.5rem;
+    padding: 6px;
+  }
+
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .user-mode-button,
+  .logout-button-guru {
+    height: 36px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Profile Section */
+  .profile-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    margin: 10px;
+  }
+
+  .profile-avatar {
+    width: 60px;
+    height: 60px;
+    margin: 0 0 15px 0;
+  }
+
+  .profile-info {
+    width: 100%;
+  }
+
+  .contact-info {
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .edit-profile-button {
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  /* Tab Navigation */
+  .tabs-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    margin: 10px;
+    padding-bottom: 5px;
+  }
+
+  .tab-button {
+    padding: 10px;
+    min-width: max-content;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  /* Search and Filters */
+  .search-filter-container {
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-dropdown {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .filter-select {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* Student Cards */
+  .students-container {
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 15px;
+  }
+
+  .student-card {
+    margin: 0;
+  }
+
+  .student-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .action-button {
+    flex: 1 1 calc(50% - 4px);
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  /* Reports Section */
+  .reports {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .report-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-group select {
+    width: 100%;
+  }
+
+  .summary-stats {
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .chart-container {
+    max-width: 100%;
+    margin: 10px 0;
+  }
+
+  /* Modals */
+  .modal-content,
+  .report-modal .modal-content {
+    width: 95%;
+    margin: 10px;
+    padding: 15px;
+    max-height: 85vh;
+  }
+
+  .modal-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .history-table {
+    display: block;
+    overflow-x: auto;
+    font-size: 0.9rem;
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-guru-pages {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .logo i {
+    font-size: 1.2rem;
+    padding: 5px;
+  }
+
+  .logo h1 {
+    font-size: 1rem;
+    max-width: 65%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-actions {
+    width: auto;
+    justify-content: flex-end;
+    margin-top: 0;
+    gap: 6px;
+  }
+
+  .user-mode-button,
+  .home-button,
+  .logout-button-guru {
+    padding: 5px 8px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+
+  .logout-button-guru {
+    position: relative;
+    right: 0;
+    min-width: auto;
+  }
+}
+
+/* Reports Responsive Styles */
+@media (max-width: 768px) {
+  /* Reports Section Improvements */
+  .reports {
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .reports h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .report-filters {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+
+  .filter-group {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-group label {
+    margin-bottom: 5px;
+  }
+
+  .filter-group select {
+    width: 100%;
+  }
+
+  .class-summary {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .summary-stats {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stat-item {
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .student-reports {
+    margin: 0 -12px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .student-reports table {
+    border-collapse: collapse;
+  }
+
+  .student-reports th,
+  .student-reports td {
+    padding: 10px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .student-reports th {
+    position: sticky;
+    top: 0;
+    background: #f9f9f9;
+    z-index: 1;
+  }
+
+  /* Table Column Widths */
+  .student-reports th:nth-child(1),
+  .student-reports td:nth-child(1) {
+    min-width: 150px; /* Name column */
+  }
+
+  .student-reports th:nth-child(2),
+  .student-reports td:nth-child(2) {
+    min-width: 100px; /* Average score column */
+  }
+
+  .student-reports th:nth-child(3),
+  .student-reports td:nth-child(3) {
+    min-width: 120px; /* Progress column */
+  }
+
+  .student-reports th:nth-child(4),
+  .student-reports td:nth-child(4) {
+    min-width: 100px; /* Action column */
+  }
+
+  /* Detail Button */
+  .student-reports button {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  /* Scroll Indicator */
+  .student-reports::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.9)
+    );
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .reports h2 {
+    font-size: 1.1rem;
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-item {
+    padding: 10px;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .student-reports th,
+  .student-reports td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+
+  .student-reports button {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    height: 32px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .header-guru-pages,
+  .tabs-nav,
+  .search-filter-container,
+  .student-actions,
+  .edit-profile-button {
+    display: none;
+  }
+
+  .profile-container,
+  .students-container,
+  .report-details {
+    break-inside: avoid;
+  }
+
+  .chart-container {
+    page-break-inside: avoid;
+    max-width: 100%;
+  }
+}
+
+/* Loading indicator */
+.loading {
   text-align: center;
   padding: 20px;
   color: #6b7280;
 }
 
-.tabguru-no-students {
+/* No students message */
+.no-students {
   text-align: center;
   padding: 30px 0;
   color: #6b7280;
   font-style: italic;
 }
 
-.tabguru-loading-profile {
+/* Loading profile styles */
+.loading-profile {
+  /* min-height: 80px; */
   display: flex;
   align-items: center;
   color: #6b7280;
 }
 
-.tabguru-loading i,
-.tabguru-loading-profile i {
+.loading i,
+.loading-profile i {
   margin-right: 10px;
   font-size: 1.2rem;
   color: #6366f1;
 }
 
-/* Reports Styles */
-.tabguru-reports {
-  padding: 20px;
-}
-
-.tabguru-report-filters {
-  margin-bottom: 20px;
-}
-
-.tabguru-filter-group {
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  z-index: 1000;
 }
 
-.tabguru-filter-group label {
-  font-weight: 500;
-  margin-right: 8px;
-}
-
-.tabguru-filter-group select {
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+.modal-content {
   background-color: white;
-}
-
-.tabguru-report-content {
-  margin-top: 20px;
-}
-
-.tabguru-class-summary {
-  background: #f8f9fa;
-  padding: 20px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.tabguru-summary-stats {
+.modal-header {
   display: flex;
-  gap: 20px;
-  margin-top: 10px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.tabguru-stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.tabguru-stat-label {
-  font-weight: 500;
-  color: #666;
-}
-
-.tabguru-stat-value {
-  font-size: 1.2rem;
-  font-weight: bold;
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
   color: #333;
 }
 
-.tabguru-student-reports {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
 }
 
-.tabguru-report-table {
+.close-button:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-button.close {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.action-button.close:hover {
+  background-color: #e0e0e0;
+}
+
+.history-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-.tabguru-report-table th,
-.tabguru-report-table td {
+.history-table th,
+.history-table td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
 }
 
-.tabguru-report-table th {
+.history-table th {
   background-color: #f5f5f5;
   font-weight: 600;
   color: #333;
 }
 
-.tabguru-report-table tr:hover {
+.history-table tr:hover {
   background-color: #f9f9f9;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .tabguru-profile-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.good-score {
+  color: #2e7d32;
+  font-weight: bold;
+  background-color: rgba(46, 125, 50, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
 
-  .tabguru-profile-avatar {
-    margin-right: 0;
-    margin-bottom: 15px;
-  }
+.needs-improvement {
+  color: #c62828;
+  font-weight: bold;
+  background-color: rgba(198, 40, 40, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
 
-  .tabguru-edit-profile-button {
-    margin-top: 15px;
-  }
+.loading,
+.error-message,
+.empty-history {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
 
-  .tabguru-tabs-nav {
-    overflow-x: auto;
-  }
+.loading i {
+  margin-right: 10px;
+  animation: spin 1s infinite linear;
+}
 
-  .tabguru-search-filter-container {
-    flex-direction: column;
-    align-items: stretch;
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
+  to {
+    transform: rotate(360deg);
+  }
+}
 
-  .tabguru-students-container {
-    grid-template-columns: 1fr;
-  }
+.error-message {
+  color: #c62828;
+  background-color: rgba(198, 40, 40, 0.1);
+  border-radius: 4px;
+  padding: 15px;
+}
 
-  .tabguru-student-actions {
-    flex-direction: column;
-  }
+/* Student History Styles */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
 
-  .tabguru-action-button {
-    flex: none;
-  }
+.history-table th,
+.history-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.history-table th {
+  background-color: #f4f5fb;
+  font-weight: bold;
+}
+
+.history-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.history-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.good-score {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.needs-improvement {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+.empty-history {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.error-message {
+  color: #ef4444;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Dummy Data Notification Styles */
+.dummy-data-notice {
+  background-color: #fff8e1;
+  color: #856404;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border-left: 4px solid #ffc107;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.dummy-data-notice i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+/* Data Source Info Styles */
+.data-source-info {
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #e8f4fd;
+  color: #0277bd;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+
+.data-source-info i {
+  margin-right: 8px;
+}
+
+/* Difficulty Level Styles */
+.level-mudah {
+  color: #2e7d32;
+  background-color: rgba(46, 125, 50, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.level-sedang {
+  color: #ff8f00;
+  background-color: rgba(255, 143, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.level-sulit {
+  color: #c62828;
+  background-color: rgba(198, 40, 40, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+/* Status styles for game progress */
+.status-selesai {
+  background-color: #4caf50;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  display: inline-block;
+}
+
+.status-belum {
+  background-color: #ff9800;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  display: inline-block;
 }

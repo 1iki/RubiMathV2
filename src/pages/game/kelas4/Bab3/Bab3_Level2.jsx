@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Bab3_Level2.css'; // Import CSS sebagai file terpisah
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 // Data soal
 const questions = [
@@ -85,6 +86,8 @@ function App() {
   const [usedOptionIndices, setUsedOptionIndices] = useState([]);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
   const [feedbackVisible, setFeedbackVisible] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
   const navigate = useNavigate();
   
   // Initialize selected pieces when a new question is loaded
@@ -97,11 +100,43 @@ function App() {
     }
   }, [currentQuestion, gameState]);
 
+  // Tambahkan fungsi handleSaveProgress
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 3,
+      level: 2,
+      jenis_permainan: "Pecahan Level 2",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: correctAnswers,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  // Tambahkan useEffect untuk menyimpan progress
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
+
   // Start game
   const startGame = () => {
     setGameState('playing');
     setCurrentQuestion(0);
     setScore(0);
+    setGameOver(false);
+    setCorrectAnswers(0);
   };
 
   // Restart game
@@ -109,6 +144,8 @@ function App() {
     setGameState('playing');
     setCurrentQuestion(0);
     setScore(0);
+    setGameOver(false);
+    setCorrectAnswers(0);
   };
 
   // Navigate back to Category4_Bab3
@@ -169,6 +206,7 @@ function App() {
     
     if (isCorrect) {
       setScore(prevScore => prevScore + 10);
+      setCorrectAnswers(prevCorrectAnswers => prevCorrectAnswers + 1);
       setFeedback({
         message: "Jawabanmu benar! +10 poin",
         type: 'correct'
@@ -188,6 +226,7 @@ function App() {
         setCurrentQuestion(prevQuestion => prevQuestion + 1);
       } else {
         setGameState('end');
+        setGameOver(true);
       }
     }, 2000);
   };

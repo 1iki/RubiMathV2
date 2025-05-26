@@ -13,7 +13,7 @@ const TabGuru = () => {
   const [teacherProfile, setTeacherProfile] = useState({
     name: "agung",
     role: "Guru Matematika",
-    school: "SDN Merdeka 01",
+    school: "SDN Kedoya Utara 03",
     email: "siti.rahayu@sdnmerdeka01.sch.id",
     phone: "+62 812-3456-7890",
     studentCount: 0,
@@ -170,7 +170,7 @@ const TabGuru = () => {
         setTeacherProfile({
           name: data.nama || teacherProfile.name,
           role: roleText,
-          school: "SDN Merdeka 01", // Use a default value or fetch from a settings table
+          school: "SDN Kedoya Utara 03", // Use a default value or fetch from a settings table
           email: data.email || teacherProfile.email,
           phone: data.no_telp || teacherProfile.phone,
           kelas: kelasArray,

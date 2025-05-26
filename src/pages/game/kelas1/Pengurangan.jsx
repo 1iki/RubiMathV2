@@ -4,10 +4,13 @@ import { motion } from 'framer-motion';
 import ReactConfetti from 'react-confetti';
 import '../../../game.css';
 import '../SingleLevel.css';
+import { useAuth } from '../../../context/AuthContext';
+import supabase from '../../../config/supabase';
 
 const Pengurangan = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, loading } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [totalQuestions] = useState(5);
   const [score, setScore] = useState(0);
@@ -24,6 +27,83 @@ const Pengurangan = () => {
     numberOfPieces: 500,
     gravity: 0.3
   });
+
+  // Redirect jika tidak ada user
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  // Jika masih loading, tampilkan loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 p-4 flex items-center justify-center">
+        <div className="text-2xl font-bold text-gray-700">Loading...</div>
+      </div>
+    );
+  }
+
+  // Jika tidak ada user, jangan render game
+  if (!user) {
+    return null;
+  }
+
+  // Fungsi untuk menyimpan progress game
+  const saveGameProgress = async () => {
+    try {
+      const { data: siswaData, error: siswaError } = await supabase
+        .from("siswa")
+        .select("id_siswa")
+        .eq("auth_user_id", user.id)
+        .single();
+
+      if (siswaError) {
+        console.error("Error getting siswa data:", siswaError);
+        return;
+      }
+
+      const gameData = {
+        id_siswa: siswaData.id_siswa,
+        kelas: 1,
+        bab: 1,
+        level: 1,
+        jenis_permainan: "Pengurangan",
+        skor: score,
+        skor_maksimal: 100,
+        status_selesai: currentQuestion > totalQuestions,
+        detail_jawaban: {
+          jawaban: [
+            {
+              total_benar: score / 20, // Assuming each correct answer gives 20 points
+              total_soal: totalQuestions
+            }
+          ]
+        }
+      };
+
+      const { error: progressError } = await supabase.rpc(
+        "update_game_progress",
+        gameData
+      );
+
+      if (progressError) {
+        console.error("Error saving game progress:", progressError);
+        return;
+      }
+
+      console.log("Game progress saved successfully!");
+    } catch (error) {
+      console.error("Error in saveGameProgress:", error);
+    }
+  };
+
+  // Simpan progress saat score berubah atau game selesai
+  useEffect(() => {
+    if (score > 0 || currentQuestion > totalQuestions) {
+      saveGameProgress();
+    }
+  }, [score, currentQuestion]);
 
   // Set the currentLevelKey when component mounts
   useEffect(() => {

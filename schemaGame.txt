@@ -1,0 +1,308 @@
+-- 13. Tabel untuk menyimpan informasi game dan progres siswa
+CREATE TABLE game_progress (
+    id_progress SERIAL PRIMARY KEY,
+    id_siswa INTEGER REFERENCES siswa(id_siswa) ON DELETE CASCADE,
+    kelas INTEGER NOT NULL, -- contoh: 1, 2, 3, 4, 5, 6
+    bab INTEGER NOT NULL, -- contoh: 1, 2, 3, 4, 5, 6
+    level INTEGER NOT NULL, -- contoh: 1, 2, 3, 4
+    jenis_permainan VARCHAR(100), -- contoh: 'Penyajian Data', 'Bangun Datar', 'Pengukuran', dll
+    skor INTEGER DEFAULT 0,
+    skor_maksimal INTEGER DEFAULT 100,
+    status_selesai BOOLEAN DEFAULT FALSE,
+    waktu_mulai TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    waktu_selesai TIMESTAMP,
+    jumlah_percobaan INTEGER DEFAULT 1,
+    detail_jawaban JSONB, -- menyimpan detail jawaban siswa dalam format JSON
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_game_progress UNIQUE (id_siswa, kelas, bab, level)
+);
+
+
+FOR EACH ROW EXECUTE FUNCTION update_modified_column();
+
+CREATE TRIGGER trg_update_game_progress_timestamp
+BEFORE UPDATE ON game_progress
+
+CREATE INDEX idx_game_progress_siswa ON game_progress(id_siswa);
+CREATE INDEX idx_game_progress_kelas ON game_progress(kelas);
+CREATE INDEX idx_game_progress_bab ON game_progress(bab);
+CREATE INDEX idx_game_progress_level ON game_progress(level);
+CREATE INDEX idx_game_progress_jenis ON game_progress(jenis_permainan);
+
+ALTER TABLE public.game_progress ENABLE ROW LEVEL SECURITY;
+
+-- Data Dummy untuk tabel game_progress
+INSERT INTO game_progress (id_progress, id_siswa, kelas, bab, level, jenis_permainan, skor, skor_maksimal, status_selesai, jumlah_percobaan, detail_jawaban, created_at, updated_at) VALUES 
+  (1, 1, 5, 1, 1, 'Penyajian Data', 80, 100, TRUE, 1, '{"jawaban":[{"soal_id":1,"jawaban_siswa":"A","benar":true},{"soal_id":2,"jawaban_siswa":"C","benar":false}]}', '2025-05-14 10:00:00', '2025-05-14 10:05:00'),
+  (2, 1, 5, 1, 2, 'Bangun Datar', 90, 100, TRUE, 1, '{"jawaban":[{"soal_id":1,"jawaban_siswa":"B","benar":true},{"soal_id":2,"jawaban_siswa":"D","benar":true}]}', '2025-05-14 10:10:00', '2025-05-14 10:15:00'),
+  (3, 2, 5, 2, 1, 'Pengukuran', 70, 100, FALSE, 3, '{"jawaban":[{"soal_id":1,"jawaban_siswa":"A","benar":false},{"soal_id":2,"jawaban_siswa":"C","benar":true}]}', '2025-05-14 10:20:00', '2025-05-14 10:25:00');
+
+-- Reset sequence untuk game_progress
+SELECT setval('game_progress_id_progress_seq', (SELECT MAX(id_progress) FROM game_progress));
+
+-- ====================================================================
+-- BAGIAN 13: TABEL UNTUK MENYIMPAN PROGRES GAME
+-- ====================================================================
+
+-- Tabel untuk menyimpan informasi game dan progres siswa
+CREATE TABLE game_progress (
+    id_progress SERIAL PRIMARY KEY,
+    id_siswa INTEGER REFERENCES siswa(id_siswa) ON DELETE CASCADE,
+    kelas INTEGER NOT NULL, -- contoh: 1, 2, 3, 4, 5, 6
+    bab INTEGER NOT NULL, -- contoh: 1, 2, 3, 4, 5, 6
+    level INTEGER NOT NULL, -- contoh: 1, 2, 3, 4
+    jenis_permainan VARCHAR(100), -- contoh: 'Penyajian Data', 'Bangun Datar', 'Pengukuran', dll
+    skor INTEGER DEFAULT 0,
+    skor_maksimal INTEGER DEFAULT 100,
+    status_selesai BOOLEAN DEFAULT FALSE,
+    waktu_mulai TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    waktu_selesai TIMESTAMP,
+    jumlah_percobaan INTEGER DEFAULT 1,
+    detail_jawaban JSONB, -- menyimpan detail jawaban siswa dalam format JSON
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_game_progress UNIQUE (id_siswa, kelas, bab, level)
+);
+
+-- Trigger untuk update timestamp
+CREATE TRIGGER trg_update_game_progress_timestamp
+BEFORE UPDATE ON game_progress
+FOR EACH ROW EXECUTE FUNCTION update_modified_column();
+
+-- Indeks untuk optimasi query
+CREATE INDEX idx_game_progress_siswa ON game_progress(id_siswa);
+CREATE INDEX idx_game_progress_kelas ON game_progress(kelas);
+CREATE INDEX idx_game_progress_bab ON game_progress(bab);
+CREATE INDEX idx_game_progress_level ON game_progress(level);
+CREATE INDEX idx_game_progress_jenis ON game_progress(jenis_permainan);
+
+-- Fungsi untuk mendapatkan rata-rata skor siswa per kelas dan bab
+CREATE OR REPLACE FUNCTION hitung_rata_skor_permainan(p_id_siswa INTEGER, p_kelas INTEGER, p_bab INTEGER)
+RETURNS FLOAT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_rata_rata FLOAT;
+BEGIN
+    SELECT AVG(skor) INTO v_rata_rata
+    FROM game_progress
+    WHERE id_siswa = p_id_siswa AND kelas = p_kelas AND bab = p_bab;
+    
+    RETURN v_rata_rata;
+END;
+$$;
+
+-- Fungsi untuk mendapatkan total permainan yang telah diselesaikan oleh siswa
+CREATE OR REPLACE FUNCTION hitung_total_permainan_selesai(p_id_siswa INTEGER)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_total INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO v_total
+    FROM game_progress
+    WHERE id_siswa = p_id_siswa AND status_selesai = TRUE;
+    
+    RETURN v_total;
+END;
+$$;
+
+-- Fungsi untuk update progres game yang sudah ada atau menyimpan yang baru (UPSERT)
+CREATE OR REPLACE FUNCTION update_game_progress(
+    p_id_siswa INTEGER,
+    p_kelas INTEGER,
+    p_bab INTEGER, 
+    p_level INTEGER,
+    p_jenis_permainan VARCHAR(100),
+    p_skor INTEGER,
+    p_skor_maksimal INTEGER DEFAULT 100,
+    p_status_selesai BOOLEAN DEFAULT FALSE,
+    p_detail_jawaban JSONB DEFAULT NULL
+)
+RETURNS INTEGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_progress INTEGER;
+    v_skor_sebelumnya INTEGER;
+    v_jumlah_percobaan INTEGER;
+    v_detail_jawaban_baru JSONB;
+    v_detail_jawaban_lama JSONB;
+    v_waktu_sekarang TIMESTAMP := CURRENT_TIMESTAMP;
+BEGIN
+    -- Cek apakah progres sudah ada
+    SELECT id_progress, skor, jumlah_percobaan, detail_jawaban
+    INTO v_id_progress, v_skor_sebelumnya, v_jumlah_percobaan, v_detail_jawaban_lama
+    FROM game_progress
+    WHERE id_siswa = p_id_siswa AND kelas = p_kelas AND bab = p_bab AND level = p_level;
+    
+    -- Jika sudah ada, update nilai hanya jika lebih tinggi dari sebelumnya
+    IF v_id_progress IS NOT NULL THEN
+        -- Tingkatkan jumlah percobaan
+        v_jumlah_percobaan := v_jumlah_percobaan + 1;
+        
+        -- Simpan riwayat jawaban jika ada
+        IF p_detail_jawaban IS NOT NULL THEN
+            IF v_detail_jawaban_lama IS NULL THEN
+                v_detail_jawaban_baru := jsonb_build_object('riwayat', jsonb_build_array(
+                    jsonb_build_object(
+                        'percobaan', v_jumlah_percobaan,
+                        'tanggal', v_waktu_sekarang,
+                        'skor', p_skor,
+                        'jawaban', p_detail_jawaban->'jawaban'
+                    )
+                ));
+            ELSE
+                -- Tambahkan riwayat percobaan baru ke array yang sudah ada
+                v_detail_jawaban_baru := v_detail_jawaban_lama || 
+                    jsonb_build_object('riwayat', 
+                        v_detail_jawaban_lama->'riwayat' || 
+                        jsonb_build_array(
+                            jsonb_build_object(
+                                'percobaan', v_jumlah_percobaan,
+                                'tanggal', v_waktu_sekarang,
+                                'skor', p_skor,
+                                'jawaban', p_detail_jawaban->'jawaban'
+                            )
+                        )
+                    );
+            END IF;
+        ELSE
+            v_detail_jawaban_baru := v_detail_jawaban_lama;
+        END IF;
+        
+        -- Update dengan nilai tertinggi
+        IF p_skor >= v_skor_sebelumnya THEN
+            UPDATE game_progress
+            SET skor = p_skor,
+                skor_maksimal = p_skor_maksimal,
+                status_selesai = p_status_selesai,
+                jumlah_percobaan = v_jumlah_percobaan,
+                waktu_selesai = v_waktu_sekarang,
+                detail_jawaban = v_detail_jawaban_baru
+            WHERE id_progress = v_id_progress;
+        ELSE
+            -- Tetap update jumlah percobaan dan riwayat jawaban meskipun skor tidak lebih tinggi
+            UPDATE game_progress
+            SET jumlah_percobaan = v_jumlah_percobaan,
+                detail_jawaban = v_detail_jawaban_baru
+            WHERE id_progress = v_id_progress;
+        END IF;
+        
+        RETURN v_id_progress;
+    -- Jika belum ada, buat entri baru
+    ELSE
+        INSERT INTO game_progress (
+            id_siswa, kelas, bab, level, jenis_permainan, 
+            skor, skor_maksimal, status_selesai, 
+            waktu_mulai, waktu_selesai, detail_jawaban
+        ) VALUES (
+            p_id_siswa, p_kelas, p_bab, p_level, p_jenis_permainan,
+            p_skor, p_skor_maksimal, p_status_selesai,
+            v_waktu_sekarang, 
+            CASE WHEN p_status_selesai THEN v_waktu_sekarang ELSE NULL END,
+            p_detail_jawaban
+        )
+        RETURNING id_progress INTO v_id_progress;
+        
+        RETURN v_id_progress;
+    END IF;
+END;
+$$;
+
+-- View untuk melihat rangkuman progres game siswa
+CREATE OR REPLACE VIEW rangkuman_progres_game AS
+SELECT 
+    s.nama AS nama_siswa,
+    s.nis,
+    k.nama_kelas,
+    gp.kelas,
+    gp.bab,
+    gp.level,
+    gp.jenis_permainan,
+    gp.skor,
+    gp.skor_maksimal,
+    gp.status_selesai,
+    gp.jumlah_percobaan,
+    gp.created_at AS waktu_pertama_main,
+    gp.updated_at AS waktu_terakhir_main
+FROM 
+    game_progress gp
+JOIN 
+    siswa s ON gp.id_siswa = s.id_siswa
+LEFT JOIN 
+    kelas k ON s.id_kelas = k.id_kelas
+ORDER BY 
+    s.nama, gp.kelas, gp.bab, gp.level;
+
+-- View untuk melihat riwayat permainan siswa dengan semua percobaan
+CREATE OR REPLACE VIEW riwayat_permainan_siswa AS
+WITH riwayat_percobaan AS (
+    SELECT 
+        gp.id_siswa,
+        gp.kelas,
+        gp.bab,
+        gp.level,
+        gp.jenis_permainan,
+        r.value->>'percobaan' AS percobaan,
+        r.value->>'tanggal' AS tanggal_percobaan,
+        (r.value->>'skor')::INTEGER AS skor_percobaan
+    FROM 
+        game_progress gp,
+        jsonb_array_elements(
+            CASE 
+                WHEN gp.detail_jawaban->'riwayat' IS NOT NULL 
+                THEN gp.detail_jawaban->'riwayat' 
+                ELSE '[]'::jsonb 
+            END
+        ) AS r
+)
+SELECT 
+    s.nama AS nama_siswa,
+    s.nis,
+    k.nama_kelas,
+    rp.kelas,
+    rp.bab,
+    rp.level,
+    rp.jenis_permainan,
+    rp.percobaan,
+    rp.tanggal_percobaan,
+    rp.skor_percobaan
+FROM 
+    riwayat_percobaan rp
+JOIN 
+    siswa s ON rp.id_siswa = s.id_siswa
+LEFT JOIN 
+    kelas k ON s.id_kelas = k.id_kelas
+ORDER BY 
+    s.nama, rp.kelas, rp.bab, rp.level, rp.percobaan::INTEGER;
+
+-- Row Level Security untuk tabel game_progress
+ALTER TABLE public.game_progress ENABLE ROW LEVEL SECURITY;
+
+-- Policy untuk siswa (hanya bisa melihat progres mereka sendiri)
+CREATE POLICY siswa_game_progress ON game_progress
+    USING (id_siswa IN (
+        SELECT id_siswa FROM siswa 
+        WHERE auth_user_id = current_setting('app.current_user_id', true)::uuid
+    ));
+
+-- Policy untuk guru (bisa melihat progres siswa di kelas mereka)
+CREATE POLICY guru_game_progress ON game_progress
+    USING (id_siswa IN (
+        SELECT s.id_siswa FROM siswa s
+        JOIN kelas k ON s.id_kelas = k.id_kelas
+        WHERE k.id_guru IN (
+            SELECT id_guru FROM guru 
+            WHERE auth_user_id = current_setting('app.current_user_id', true)::uuid
+        )
+    ));
+
+-- Policy untuk admin (bisa melihat semua)
+CREATE POLICY admin_game_progress ON game_progress
+    USING (EXISTS (
+        SELECT 1 FROM admin 
+        WHERE auth_user_id = current_setting('app.current_user_id', true)::uuid
+    ));

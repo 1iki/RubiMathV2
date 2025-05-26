@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress } from "../../../../services/gameProgressService";
 
 const questions = [
   {
@@ -191,6 +193,43 @@ function DecimalFractionsQuiz() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  const handleSaveProgress = async () => {
+    if (!user) return;
+    
+    const gameData = {
+      kelas: 4,
+      bab: 2,
+      level: 3,
+      jenis_permainan: "Game Pecahan Desimal",
+      skor: score,
+      skor_maksimal: questions.length * 10,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score / 10,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
 
   function shuffleArray(array) {
     return array
@@ -203,11 +242,11 @@ function DecimalFractionsQuiz() {
   const shuffledAnswers = shuffleArray(currentQuestion.answers);
 
   function handleAnswerClick(answer) {
-    if (showFeedback) return; // prevent multiple selects
+    if (showFeedback) return;
     setSelectedAnswer(answer);
     setShowFeedback(true);
     if (answer === currentQuestion.correct) {
-      setScore((prev) => prev + 10); // Changed to add 10 points per correct answer
+      setScore((prev) => prev + 10);
     }
   }
 

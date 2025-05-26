@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { saveGameProgress, getGameProgress } from "../../../../services/gameProgressService";
 
 const questions = [
   {
@@ -352,6 +353,7 @@ function shuffleArray(array) {
 export default function FractionAdventure() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [showNext, setShowNext] = useState(false);
   const [selectedChoice, setSelectedChoice] = useState(null);
@@ -418,7 +420,8 @@ export default function FractionAdventure() {
     const correctAnswer = questions[currentQuestionIndex].answer;
     setSelectedChoice(choice);
     if(choice === correctAnswer){
-      setScore(prev => prev +10);
+      setScore(prev => prev + 10);
+      setCorrectAnswers(prev => prev + 1);
       setFeedback('Betul sekali! Kamu dapat 10 poin!');
     } else {
       setFeedback(`Wah, belum tepat. Jawaban yang benar adalah ${correctAnswer}. Ayo coba soal berikutnya!`);
@@ -431,28 +434,40 @@ export default function FractionAdventure() {
     }, 100);
   };
 
+  const handleSaveProgress = async () => {
+    const gameData = {
+      kelas: 4,
+      bab: 2,
+      level: 1,
+      jenis_permainan: "Bilangan Bulat",
+      skor: score,
+      skor_maksimal: 100,
+      status_selesai: gameOver,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: correctAnswers,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || gameOver) {
+      handleSaveProgress();
+    }
+  }, [score, gameOver]);
+
   const handleNext = () => {
-    if(currentQuestionIndex < questions.length - 1){
+    if(currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Jika soal terakhir, tampilkan hasil skor
       setGameOver(true);
-      
-      // Simpan skor ke localStorage jika diperlukan
-      const userData = JSON.parse(localStorage.getItem("selectedAvatar"));
-      if (userData) {
-        const progressKey = `avatar_${userData.name}_levels_progress`;
-        const savedProgress = JSON.parse(localStorage.getItem(progressKey)) || {};
-        
-        // Update progress untuk level ini
-        savedProgress["level_1"] = {
-          completed: true,
-          score: score,
-          completedAt: new Date().toISOString()
-        };
-        
-        localStorage.setItem(progressKey, JSON.stringify(savedProgress));
-      }
+      handleSaveProgress();
     }
   };
 

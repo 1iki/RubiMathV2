@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../../context/AuthContext";
+import { saveGameProgress } from "../../../../services/gameProgressService";
 
 const styles = {
   body: {
@@ -342,12 +344,50 @@ function FractionGame() {
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState([]); // for order question
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [answered, setAnswered] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [correctButtons, setCorrectButtons] = useState(new Set());
   const [wrongButtons, setWrongButtons] = useState(new Set());
+  const [gameOver, setGameOver] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  const handleSaveProgress = async () => {
+    if (!user) return;
+    
+    const gameData = {
+      kelas: 4,
+      bab: 2,
+      level: 2,
+      jenis_permainan: "Game Pecahan",
+      skor: score,
+      skor_maksimal: questions.length * pointsPerQuestion,
+      status_selesai: currentIndex >= questions.length,
+      detail_jawaban: {
+        jawaban: [
+          {
+            total_benar: score / pointsPerQuestion,
+            total_soal: questions.length
+          }
+        ]
+      }
+    };
+
+    await saveGameProgress(gameData);
+  };
+
+  useEffect(() => {
+    if (score > 0 || currentIndex >= questions.length) {
+      handleSaveProgress();
+    }
+  }, [score, currentIndex]);
 
   const pointsPerQuestion = 10;
 
@@ -360,6 +400,7 @@ function FractionGame() {
     setFeedback('');
     setCorrectButtons(new Set());
     setWrongButtons(new Set());
+    setGameOver(false);
   }
 
   const currentQuestion = questions[currentIndex] || null;
@@ -528,6 +569,10 @@ function FractionGame() {
     let message = '';
     const maxScore = questions.length * pointsPerQuestion;
     const percentage = (score / maxScore) * 100;
+    
+    if (!gameOver) {
+      setGameOver(true);
+    }
     
     if (percentage === 100) {
       message = 'Hebat sekali! Kamu sangat pintar dalam pecahan!';

@@ -233,25 +233,10 @@ export default function Login() {
     }
 
     try {
-      // Coba periksa koneksi, tapi jangan biarkan error menghentikan proses login
-      try {
-        await checkConnection();
-      } catch (connError) {
-        console.error("Error saat memeriksa koneksi:", connError);
-        setIsOfflineMode(true);
-      }
-
-      // Jika dalam mode offline, langsung gunakan login offline
-      if (isOfflineMode) {
-        console.log("Menggunakan mode offline untuk login");
-        handleOfflineLogin();
-        return;
-      }
-
-      // Online mode
+      // Coba login online terlebih dahulu
       if (role === "siswa") {
         try {
-          console.log("Mencoba login dengan nama:", username, "dan NIS:", password);
+          console.log("Mencoba login siswa dengan nama:", username, "dan NIS:", password);
           const userData = await loginSiswa(username, password);
 
           if (!userData) {
@@ -260,25 +245,36 @@ export default function Login() {
             return;
           }
 
-          console.log("Login berhasil dengan user:", userData);
-          localStorage.setItem("userData", JSON.stringify(userData));
-
-          if (userData.offline) {
-            setIsOfflineMode(true);
-            localStorage.setItem("isOfflineMode", "true");
+          // Pastikan id_siswa tersimpan
+          if (!userData.id_siswa) {
+            showNotification("Data siswa tidak lengkap. Hubungi administrator.", "error");
+            setLoading(false);
+            return;
           }
+
+          // Simpan data lengkap ke localStorage
+          const userDataToStore = {
+            ...userData,
+            isLoggedIn: true,
+            role: "siswa",
+            lastLoginTime: new Date().toISOString()
+          };
+
+          localStorage.setItem("userData", JSON.stringify(userDataToStore));
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("userRole", "siswa");
+          localStorage.setItem("id_siswa", userData.id_siswa.toString());
 
           showNotification("Login berhasil! Silakan pilih avatar Anda.", "success");
           setAvatarsLoading(true);
 
-          // Simulate avatar loading
           setTimeout(() => {
             setAvatarsLoading(false);
             setLoginSuccess(true);
           }, 1000);
         } catch (error) {
           console.error("Error during siswa login:", error);
-          showNotification("Login Gagal. Periksa Kembali Akun Anda....", "error");
+          showNotification("Login Gagal. Mencoba mode offline...", "warning");
           handleOfflineLogin();
         }
       } else if (role === "guru") {
@@ -346,7 +342,6 @@ export default function Login() {
       setError("Terjadi kesalahan saat login. Silakan coba lagi atau gunakan mode offline.");
       showNotification("Terjadi kesalahan saat login.", "error");
       setLoading(false);
-      setIsOfflineMode(true);
       handleOfflineLogin();
     }
   };
@@ -354,21 +349,32 @@ export default function Login() {
   // Helper function untuk login offline
   const handleOfflineLogin = () => {
     if (role === "siswa") {
-      // Siswa login dengan nama dan nis
-      // username = nama siswa, password = nis
       const offlineSiswa = dummySiswa.find(
         (s) => s.nama === username && s.nis === password
       );
 
       if (!offlineSiswa) {
+        setError("Nama atau NIS tidak ditemukan dalam data offline");
         setLoading(false);
         return;
       }
 
-      // Tandai bahwa ini adalah data offline
-      const siswaWithFlag = { ...offlineSiswa, offline: true };
-      localStorage.setItem("userData", JSON.stringify(siswaWithFlag));
+      // Tambahkan id_siswa untuk data offline
+      const siswaWithId = {
+        ...offlineSiswa,
+        id_siswa: Date.now(), // Generate temporary ID for offline mode
+        offline: true,
+        isLoggedIn: true,
+        role: "siswa",
+        lastLoginTime: new Date().toISOString()
+      };
+
+      localStorage.setItem("userData", JSON.stringify(siswaWithId));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", "siswa");
+      localStorage.setItem("id_siswa", siswaWithId.id_siswa.toString());
       localStorage.setItem("isOfflineMode", "true");
+      
       setIsOfflineMode(true);
       setLoginSuccess(true);
     } else if (role === "guru") {

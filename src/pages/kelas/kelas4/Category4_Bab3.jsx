@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "./style/Category4.css";
 import confetti from "react-confetti";
+import supabase from "../../../config/supabase";
+import { getGameProgress } from "../../../services/gameProgressService";
 
 // Define the levels data with icons, colors and content
 const levels = [
@@ -58,6 +60,7 @@ export default function Category4_Bab3() {
   const [completedLevels, setCompletedLevels] = useState([]);
   const [animateBackground, setAnimateBackground] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  const [levelStatus, setLevelStatus] = useState({});
 
   // Generate stars for background effect
   const stars = Array.from({ length: 50 }, (_, i) => ({
@@ -81,6 +84,26 @@ export default function Category4_Bab3() {
 
   // Set all path connectors to incomplete
   const pathConnectorsCompleted = {}; // Empty object means no paths are completed
+
+  // Add new function to check completion status
+  const checkLevelCompletion = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData || !userData.id_siswa) return;
+
+      const completionStatus = {};
+      
+      // Check each level's completion status
+      for (const level of levels) {
+        const progress = await getGameProgress(4, 3, level.id);
+        completionStatus[level.id] = progress?.status_selesai || false;
+      }
+
+      setLevelStatus(completionStatus);
+    } catch (error) {
+      console.error("Error checking level completion:", error);
+    }
+  };
 
   useEffect(() => {
     // Check if user is logged in
@@ -113,7 +136,11 @@ export default function Category4_Bab3() {
       setShowHint(true);
     }, 3000);
 
-    return () => clearTimeout(hintTimer);
+    checkLevelCompletion();
+
+    return () => {
+      clearTimeout(hintTimer);
+    };
   }, [navigate]);
 
   const triggerConfetti = () => {
@@ -180,10 +207,9 @@ export default function Category4_Bab3() {
     }, 500);
   };
 
-  // Check if a level is completed
+  // Update isLevelCompleted function
   const isLevelCompleted = (levelNum) => {
-    // Always return false to treat all levels as incomplete
-    return false;
+    return levelStatus[levelNum] || false;
   };
 
   return (
