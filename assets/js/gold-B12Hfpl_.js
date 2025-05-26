@@ -1,0 +1,1 @@
+const s="/RubiMathV2/assets/img/mainsiswa-CNgKkMeZ.jpg",a="/RubiMathV2/assets/img/bronze-C06y5rVm.PNG",e="/RubiMathV2/assets/img/silver-ByBpWjuQ.PNG",g="/RubiMathV2/assets/img/gold-B99uM-3Z.PNG";export{a,s as b,g,e as s};
